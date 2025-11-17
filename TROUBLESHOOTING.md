@@ -189,76 +189,6 @@ php artisan key:generate
 
 ## Database Issues
 
-### Error: "could not find driver" (SQLite)
-
-**Problem:** PDO SQLite extension is not installed.
-
-**Solution:**
-
-```bash
-# Check if pdo_sqlite is installed
-php -m | grep pdo_sqlite
-
-# If not installed, install it:
-# For PHP 8.4 (Debian/Ubuntu)
-sudo apt-get install -y php8.4-sqlite3
-
-# For PHP 8.1-8.3 (Debian/Ubuntu)
-sudo apt-get install -y php-sqlite3
-
-# Verify installation
-php -m | grep pdo_sqlite
-
-# Restart PHP-FPM if using it
-sudo systemctl restart php8.4-fpm
-```
-
-### Error: Trying to connect to PostgreSQL when configured for SQLite
-
-**Problem:** The `DATABASE_URL` environment variable is set system-wide and overriding your .env configuration.
-
-**Symptoms:**
-- Config shows "sqlite" but errors mention PostgreSQL (port 5432)
-- SQL queries use PostgreSQL syntax like "serial" instead of SQLite
-- Error mentions database names not in your config
-
-**Solution:**
-
-1. **Check if DATABASE_URL is set:**
-   ```bash
-   env | grep DATABASE_URL
-   ```
-
-2. **Add override to .env file:**
-   ```bash
-   # Add this line to your .env file
-   DATABASE_URL=
-   ```
-
-3. **Or prefix commands with DATABASE_URL="":**
-   ```bash
-   DATABASE_URL="" php artisan migrate
-   DATABASE_URL="" php artisan db:seed
-   ```
-
-4. **Or create an alias (recommended):**
-   ```bash
-   # Add to ~/.bashrc or ~/.zshrc
-   alias artisan='DATABASE_URL="" php artisan'
-
-   # Then reload shell
-   source ~/.bashrc
-
-   # Now you can use artisan normally
-   artisan migrate
-   ```
-
-5. **Use the init-database.sh script:**
-   ```bash
-   cd laravel-app
-   ../init-database.sh
-   ```
-
 ### Error: "Database file not found"
 
 **Problem:** SQLite database file doesn't exist.
@@ -269,7 +199,7 @@ sudo systemctl restart php8.4-fpm
 cd laravel-app
 touch database/database.sqlite
 chmod 664 database/database.sqlite
-DATABASE_URL="" php artisan migrate --force
+php artisan migrate --force
 ```
 
 ### Error: "Connection refused" (MySQL/PostgreSQL)
