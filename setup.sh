@@ -75,6 +75,35 @@ else
     SKIP_NODE=false
 fi
 
+# Check PHP Extensions
+print_info "Checking required PHP extensions..."
+REQUIRED_EXTENSIONS=("xml" "dom" "mbstring" "pdo" "tokenizer" "curl" "zip" "fileinfo")
+MISSING_EXTENSIONS=()
+
+for ext in "${REQUIRED_EXTENSIONS[@]}"; do
+    if php -m | grep -qi "^$ext$"; then
+        print_success "Extension $ext is installed"
+    else
+        MISSING_EXTENSIONS+=("$ext")
+        print_error "Extension $ext is MISSING"
+    fi
+done
+
+if [ ${#MISSING_EXTENSIONS[@]} -ne 0 ]; then
+    print_error "Missing PHP extensions: ${MISSING_EXTENSIONS[*]}"
+    print_info "Please install the missing extensions. On Debian/Ubuntu, run:"
+    echo ""
+    for ext in "${MISSING_EXTENSIONS[@]}"; do
+        echo "  sudo apt-get install php8.4-$ext"
+    done
+    echo ""
+    print_info "Or install all common Laravel extensions at once:"
+    echo "  sudo apt-get install php8.4-cli php8.4-common php8.4-xml php8.4-mbstring php8.4-curl php8.4-zip php8.4-mysql php8.4-pgsql php8.4-sqlite3 php8.4-gd"
+    echo ""
+    print_warning "Continuing anyway - composer may fail..."
+    sleep 2
+fi
+
 # Step 2: Navigate to Laravel directory
 cd laravel-app
 
