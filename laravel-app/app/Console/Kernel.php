@@ -12,7 +12,26 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
+        // Run batch AI assessment daily at 2 AM (low-traffic time)
+        // Assesses top 10 priority bills per day to manage costs
+        $schedule->command('bills:auto-assess --limit=10 --priority=50')
+            ->dailyAt('02:00')
+            ->withoutOverlapping()
+            ->onOneServer()
+            ->emailOutputOnFailure(config('mail.admin_email'));
+
+        // Weekly comprehensive assessment (Sundays at 3 AM)
+        // Assesses more bills with lower priority threshold
+        $schedule->command('bills:auto-assess --limit=50 --priority=30')
+            ->weeklyOn(0, '03:00')
+            ->withoutOverlapping()
+            ->onOneServer();
+
+        // Retry failed assessments (daily at 4 AM)
+        $schedule->command('bills:auto-assess --limit=5 --priority=40')
+            ->dailyAt('04:00')
+            ->withoutOverlapping()
+            ->onOneServer();
     }
 
     /**

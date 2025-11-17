@@ -34,6 +34,19 @@ class LegislativeBill extends Model
         'change_count',
         'analyzed',
         'analyzed_at',
+        // Phase 2: AI Assessment fields
+        'ai_assessed',
+        'ai_assessed_at',
+        'ai_assessment_priority',
+        'ai_assessment_status',
+        'ai_assessment_error',
+        'stakeholder_impact',
+        'conflict_analysis',
+        'voting_predictions',
+        'policy_recommendations',
+        'ai_summary',
+        'batch_assessment_attempts',
+        'last_assessment_attempt',
     ];
 
     protected $casts = [
@@ -44,6 +57,14 @@ class LegislativeBill extends Model
         'last_changed_at' => 'datetime',
         'analyzed' => 'boolean',
         'analyzed_at' => 'datetime',
+        // Phase 2: AI Assessment casts
+        'ai_assessed' => 'boolean',
+        'ai_assessed_at' => 'datetime',
+        'stakeholder_impact' => 'array',
+        'conflict_analysis' => 'array',
+        'voting_predictions' => 'array',
+        'policy_recommendations' => 'array',
+        'last_assessment_attempt' => 'datetime',
     ];
 
     /**
