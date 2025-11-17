@@ -1,0 +1,99 @@
+# Romanian Legislative Watcher - CRON Configuration Example
+# Copy to your crontab: crontab -e
+# Or use Laravel Scheduler (recommended): * * * * * cd /path/to/app && php artisan schedule:run
+
+# Application path
+APP_PATH=/var/www/legislative-watcher
+
+# ============================================================================
+# OPTION 1: Laravel Scheduler (Recommended - Single Entry)
+# ============================================================================
+# This single line enables all scheduled tasks defined in app/Console/Kernel.php
+* * * * * cd /var/www/legislative-watcher && php artisan schedule:run >> /dev/null 2>&1
+
+
+# ============================================================================
+# OPTION 2: Direct CRON Entries (Alternative)
+# ============================================================================
+
+# Incremental scraping - Every 6 hours (0:00, 6:00, 12:00, 18:00)
+# Updates bills that haven't been scraped recently
+0 */6 * * * cd ${APP_PATH} && php artisan scrape:incremental --hours=6 >> /var/log/legislative-watcher/incremental.log 2>&1
+
+# Document downloads - Every 4 hours, offset by 30 min (0:30, 4:30, 8:30, etc.)
+# Downloads PDF documents during off-peak times
+30 */4 * * * cd ${APP_PATH} && php artisan scrape:documents --limit=100 >> /var/log/legislative-watcher/documents.log 2>&1
+
+# Full sync - Weekly on Sunday at 3:00 AM
+# Complete scrape of all bills for data integrity
+0 3 * * 0 cd ${APP_PATH} && php artisan scrape:bills --chamber=all --full --limit=1000 >> /var/log/legislative-watcher/full-sync.log 2>&1
+
+# Urgent bills check - Twice daily (9:00 AM and 5:00 PM)
+# Quick check for urgent legislative changes
+0 9,17 * * * cd ${APP_PATH} && php artisan scrape:incremental --hours=2 >> /var/log/legislative-watcher/urgent.log 2>&1
+
+# Database cleanup - Daily at 2:00 AM
+# Clean up old logs and optimize database
+0 2 * * * cd ${APP_PATH} && php artisan db:cleanup >> /var/log/legislative-watcher/cleanup.log 2>&1
+
+# Cache clear - Daily at 1:00 AM
+# Prevent cache bloat
+0 1 * * * cd ${APP_PATH} && php artisan cache:clear && php artisan config:cache >> /dev/null 2>&1
+
+
+# ============================================================================
+# PRODUCTION SCHEDULE (High Traffic)
+# ============================================================================
+
+# For production with higher update frequency:
+# - Incremental every 3 hours
+# - Documents every 2 hours
+# - Urgent checks every 2 hours during business hours
+
+# 0 */3 * * * cd ${APP_PATH} && php artisan scrape:incremental --hours=3
+# 0 */2 * * * cd ${APP_PATH} && php artisan scrape:documents --limit=50
+# 0 8-20/2 * * 1-5 cd ${APP_PATH} && php artisan scrape:incremental --hours=1
+
+
+# ============================================================================
+# MINIMAL SCHEDULE (Low Resources)
+# ============================================================================
+
+# For low-resource servers or testing:
+# - Incremental twice daily
+# - Documents once daily
+# - Full sync bi-weekly
+
+# 0 6,18 * * * cd ${APP_PATH} && php artisan scrape:incremental --hours=12
+# 0 3 * * * cd ${APP_PATH} && php artisan scrape:documents --limit=50
+# 0 4 * * 0,3 cd ${APP_PATH} && php artisan scrape:bills --chamber=all --limit=500
+
+
+# ============================================================================
+# NOTES
+# ============================================================================
+
+# Rate Limiting:
+# - CDEP and Senate have rate limiting
+# - 3 second delay between requests is enforced by scrapers
+# - Avoid overlapping jobs with --withoutOverlapping in Laravel Scheduler
+
+# Logging:
+# - All commands log to storage/logs/laravel.log
+# - Additional logs in /var/log/legislative-watcher/ (create directory first)
+# - Rotate logs regularly to prevent disk space issues
+
+# Monitoring:
+# - Check scraping_jobs table for job status
+# - Set up email alerts for failures
+# - Use Laravel Telescope for debugging
+
+# Resource Usage:
+# - Each incremental scrape: ~5-10 minutes, ~100-500 HTTP requests
+# - Each full scrape: ~1-2 hours, ~1000-5000 HTTP requests
+# - Document downloads: Variable based on PDF sizes
+
+# Error Recovery:
+# - All commands have automatic retry logic
+# - Failed jobs are logged to scraping_jobs table
+# - Use php artisan scrape:bills --force to retry failed items
