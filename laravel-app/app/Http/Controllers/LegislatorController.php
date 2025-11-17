@@ -59,8 +59,8 @@ class LegislatorController extends Controller
         // Statistics
         $stats = [
             'total_legislators' => Legislator::where('active', true)->count(),
-            'total_cdep' => Legislator::where('active', true)->where('chamber', 'cdep')->count(),
-            'total_senate' => Legislator::where('active', true)->where('chamber', 'senate')->count(),
+            'cdep_legislators' => Legislator::where('active', true)->where('chamber', 'cdep')->count(),
+            'senate_legislators' => Legislator::where('active', true)->where('chamber', 'senate')->count(),
             'total_bills_initiated' => Legislator::where('active', true)->sum('bills_initiated'),
         ];
 
@@ -71,6 +71,9 @@ class LegislatorController extends Controller
             ->groupBy('party_normalized')
             ->orderBy('count', 'desc')
             ->get();
+
+        // Add total parties to stats
+        $stats['total_parties'] = $partyDistribution->count();
 
         return view('legislators.index', compact(
             'legislators',
