@@ -3,6 +3,9 @@
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\BillController;
 use App\Http\Controllers\RiskController;
+use App\Http\Controllers\LegislatorController;
+use App\Http\Controllers\CalendarController;
+use App\Http\Controllers\CommitteeController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -23,30 +26,35 @@ Route::get('/dashboard/data', [DashboardController::class, 'data'])->name('dashb
 // Bills
 Route::get('/bills', [BillController::class, 'index'])->name('bills.index');
 Route::get('/bills/{id}', [BillController::class, 'show'])->name('bills.show');
+Route::get('/bills/compare', [BillController::class, 'compare'])->name('bills.compare');
 Route::get('/api/bills/search', [BillController::class, 'search'])->name('bills.search');
 
 // Risks
 Route::get('/risks', [RiskController::class, 'index'])->name('risks.index');
 Route::get('/risks/{id}', [RiskController::class, 'show'])->name('risks.show');
 
-// Placeholder routes for future features
-Route::get('/calendar', function () {
-    return view('placeholder', ['title' => 'Calendar', 'message' => 'Coming soon - Calendar view']);
-})->name('calendar');
+// Legislators
+Route::get('/legislators', [LegislatorController::class, 'index'])->name('legislators.index');
+Route::get('/legislators/{id}', [LegislatorController::class, 'show'])->name('legislators.show');
+Route::get('/legislators/compare', [LegislatorController::class, 'compare'])->name('legislators.compare');
 
-Route::get('/legislators', function () {
-    return view('placeholder', ['title' => 'Legislatori', 'message' => 'Coming soon - Legislator profiles']);
-})->name('legislators.index');
+// Calendar
+Route::get('/calendar', [CalendarController::class, 'index'])->name('calendar');
+Route::get('/calendar/events', [CalendarController::class, 'events'])->name('calendar.events');
 
+// Committees
+Route::get('/committees', [CommitteeController::class, 'index'])->name('committees.index');
+Route::get('/committees/{id}', [CommitteeController::class, 'show'])->name('committees.show');
+
+// API Documentation
 Route::get('/api', function () {
     return response()->json([
         'message' => 'Romanian Legislative Watcher API',
         'version' => '1.0',
         'endpoints' => [
-            'GET /api/bills' => 'List all bills',
-            'GET /api/bills/{id}' => 'Get bill details',
-            'GET /api/risks' => 'List all risks',
+            'GET /api/bills/search' => 'Search bills',
             'GET /dashboard/data' => 'Get dashboard statistics',
+            'GET /calendar/events' => 'Get calendar events for specific date',
         ]
     ]);
 })->name('api.index');

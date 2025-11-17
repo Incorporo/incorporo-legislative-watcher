@@ -163,4 +163,38 @@ class BillController extends Controller
             })
         ]);
     }
+
+    /**
+     * Compare multiple bills side-by-side
+     */
+    public function compare(Request $request)
+    {
+        $billIds = $request->input('bills', []);
+
+        // Ensure we have at least 2 bills to compare
+        if (count($billIds) < 2) {
+            return redirect()->route('bills.index')->with('error', 'Selectați cel puțin 2 proiecte pentru comparație');
+        }
+
+        // Limit to max 3 bills for better UI
+        $billIds = array_slice($billIds, 0, 3);
+
+        $bills = LegislativeBill::with([
+            'initiators.legislator',
+            'timeline',
+            'risks',
+            'analysis',
+            'committeeAssignments.committee'
+        ])->findOrFail($billIds);
+
+        // Calculate progress for each bill
+        $billsWithProgress = $bills->map(function($bill) {
+            return [
+                'bill' => $bill,
+                'progress' => $this->calculateProgress($bill)
+            ];
+        });
+
+        return view('bills.compare', compact('billsWithProgress'));
+    }
 }
