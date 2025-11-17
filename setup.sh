@@ -77,7 +77,7 @@ fi
 
 # Check PHP Extensions
 print_info "Checking required PHP extensions..."
-REQUIRED_EXTENSIONS=("xml" "dom" "mbstring" "pdo" "tokenizer" "curl" "zip" "fileinfo")
+REQUIRED_EXTENSIONS=("xml" "dom" "mbstring" "pdo" "tokenizer" "curl" "zip" "fileinfo" "pdo_sqlite")
 MISSING_EXTENSIONS=()
 
 for ext in "${REQUIRED_EXTENSIONS[@]}"; do
@@ -94,14 +94,25 @@ if [ ${#MISSING_EXTENSIONS[@]} -ne 0 ]; then
     print_info "Please install the missing extensions. On Debian/Ubuntu, run:"
     echo ""
     for ext in "${MISSING_EXTENSIONS[@]}"; do
-        echo "  sudo apt-get install php8.4-$ext"
+        if [ "$ext" = "pdo_sqlite" ]; then
+            echo "  sudo apt-get install php8.4-sqlite3"
+        else
+            echo "  sudo apt-get install php8.4-$ext"
+        fi
     done
     echo ""
     print_info "Or install all common Laravel extensions at once:"
     echo "  sudo apt-get install php8.4-cli php8.4-common php8.4-xml php8.4-mbstring php8.4-curl php8.4-zip php8.4-mysql php8.4-pgsql php8.4-sqlite3 php8.4-gd"
     echo ""
-    print_warning "Continuing anyway - composer may fail..."
+    print_warning "Continuing anyway - setup may fail..."
     sleep 2
+fi
+
+# Check for DATABASE_URL environment variable
+if [ -n "$DATABASE_URL" ]; then
+    print_warning "DATABASE_URL environment variable is set: $DATABASE_URL"
+    print_info "This may conflict with SQLite configuration."
+    print_info "The .env file will override this, but you may need to prefix commands with DATABASE_URL=\"\""
 fi
 
 # Step 2: Navigate to Laravel directory
@@ -163,7 +174,7 @@ fi
 
 # Step 8: Run Migrations
 print_header "Running Database Migrations"
-php artisan migrate --force --ansi
+DATABASE_URL="" php artisan migrate --force --ansi
 print_success "Database migrations completed"
 
 # Step 9: Create Storage Link
@@ -178,10 +189,10 @@ print_info "Ensured storage and bootstrap/cache are writable"
 
 # Step 11: Clear and Cache Config
 print_header "Optimizing Application"
-php artisan config:clear
-php artisan cache:clear
-php artisan view:clear
-php artisan route:clear
+DATABASE_URL="" php artisan config:clear
+DATABASE_URL="" php artisan cache:clear
+DATABASE_URL="" php artisan view:clear
+DATABASE_URL="" php artisan route:clear
 print_success "Cleared all caches"
 
 # Optional: Build Frontend Assets
