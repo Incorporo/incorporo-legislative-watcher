@@ -82,6 +82,24 @@ Route::middleware('auth')->group(function () {
     Route::delete('/searches/{savedSearch}', [SavedSearchController::class, 'destroy'])->name('searches.destroy');
     Route::get('/searches/{savedSearch}/apply', [SavedSearchController::class, 'apply'])->name('searches.apply');
     Route::post('/searches/{savedSearch}/set-default', [SavedSearchController::class, 'setDefault'])->name('searches.setDefault');
+
+    // Phase 3: Team Collaboration routes
+    Route::get('/teams', [App\Http\Controllers\TeamController::class, 'index'])->name('teams.index');
+    Route::post('/teams', [App\Http\Controllers\TeamController::class, 'store'])->name('teams.store');
+    Route::get('/teams/{team}', [App\Http\Controllers\TeamController::class, 'show'])->name('teams.show');
+    Route::patch('/teams/{team}', [App\Http\Controllers\TeamController::class, 'update'])->name('teams.update');
+    Route::delete('/teams/{team}', [App\Http\Controllers\TeamController::class, 'destroy'])->name('teams.destroy');
+    Route::post('/teams/{team}/members', [App\Http\Controllers\TeamController::class, 'addMember'])->name('teams.addMember');
+    Route::delete('/teams/{team}/members/{member}', [App\Http\Controllers\TeamController::class, 'removeMember'])->name('teams.removeMember');
+
+    // Discussions routes
+    Route::post('/discussions', [App\Http\Controllers\DiscussionController::class, 'store'])->name('discussions.store');
+    Route::post('/discussions/{discussion}/comments', [App\Http\Controllers\DiscussionController::class, 'addComment'])->name('discussions.addComment');
+    Route::post('/comments/{comment}/like', [App\Http\Controllers\DiscussionController::class, 'toggleLike'])->name('comments.toggleLike');
 });
+
+// Public discussion routes (no auth required)
+Route::get('/bills/{bill}/discussions', [App\Http\Controllers\DiscussionController::class, 'index'])->name('discussions.index');
+Route::get('/discussions/{discussion}', [App\Http\Controllers\DiscussionController::class, 'show'])->name('discussions.show');
 
 require __DIR__.'/auth.php';

@@ -125,6 +125,64 @@ class User extends Authenticatable
     }
 
     /**
+     * Get teams owned by the user (Phase 3)
+     */
+    public function ownedTeams(): HasMany
+    {
+        return $this->hasMany(Team::class, 'owner_id');
+    }
+
+    /**
+     * Get teams the user is a member of (Phase 3)
+     */
+    public function teams()
+    {
+        return $this->belongsToMany(Team::class, 'team_members')
+            ->withPivot(['role', 'permissions', 'joined_at', 'notifications_enabled'])
+            ->withTimestamps();
+    }
+
+    /**
+     * Get team memberships (Phase 3)
+     */
+    public function teamMemberships(): HasMany
+    {
+        return $this->hasMany(TeamMember::class);
+    }
+
+    /**
+     * Get discussions created by the user (Phase 3)
+     */
+    public function discussions(): HasMany
+    {
+        return $this->hasMany(BillDiscussion::class);
+    }
+
+    /**
+     * Get comments by the user (Phase 3)
+     */
+    public function comments(): HasMany
+    {
+        return $this->hasMany(DiscussionComment::class);
+    }
+
+    /**
+     * Get tasks assigned to the user (Phase 3)
+     */
+    public function assignedTasks(): HasMany
+    {
+        return $this->hasMany(TeamTask::class, 'assigned_to');
+    }
+
+    /**
+     * Get tasks created by the user (Phase 3)
+     */
+    public function createdTasks(): HasMany
+    {
+        return $this->hasMany(TeamTask::class, 'created_by');
+    }
+
+    /**
      * Update the user's last activity timestamp
      */
     public function updateLastActivity(): void
