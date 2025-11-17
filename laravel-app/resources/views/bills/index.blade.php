@@ -3,21 +3,21 @@
 @section('title', 'Proiecte de Lege')
 
 @section('content')
-<div class="space-y-6">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
     <!-- Page Header -->
     <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
         <div>
-            <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Proiecte de Lege</h1>
-            <p class="text-base text-gray-600 font-medium">Monitorizare completă a procesului legislativ român</p>
+            <h1 class="text-3xl md:text-4xl font-bold text-white mb-2">Proiecte de Lege</h1>
+            <p class="text-base text-apple-black-400 font-medium">Monitorizare completă a procesului legislativ român</p>
         </div>
         <div class="mt-6 md:mt-0 flex items-center space-x-3">
-            <a href="{{ route('bills.export.csv', request()->all()) }}" class="inline-flex items-center px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-lg shadow-sm text-sm font-bold text-white hover:shadow-lg transition-all">
+            <a href="{{ route('bills.export.csv', request()->all()) }}" class="inline-flex items-center px-4 py-2.5 bg-white text-black rounded-xl text-sm font-semibold hover:bg-apple-black-100 transition-all">
                 <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
                 Export CSV
             </a>
-            <a href="{{ route('bills.index') }}" class="inline-flex items-center px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm text-sm font-semibold text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 transition-all">
+            <a href="{{ route('bills.index') }}" class="inline-flex items-center px-4 py-2.5 border border-apple-black-700 rounded-xl text-sm font-semibold text-apple-black-300 bg-apple-black-800 hover:bg-apple-black-700 hover:text-white transition-all">
                 <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
@@ -27,35 +27,35 @@
     </div>
 
     <!-- Filters -->
-    <form method="GET" action="{{ route('bills.index') }}" class="bg-white rounded-2xl shadow-sm p-6 border border-slate-200 mb-6">
-        <div class="flex items-center mb-5 pb-4 border-b border-slate-100">
-            <div class="h-9 w-9 rounded-lg bg-gradient-to-br from-blue-600 to-cyan-600 flex items-center justify-center mr-3 shadow-sm">
-                <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+    <form method="GET" action="{{ route('bills.index') }}" class="bg-apple-black-900 rounded-2xl p-6 border border-apple-black-800 mb-6">
+        <div class="flex items-center mb-5 pb-4 border-b border-apple-black-800">
+            <div class="h-9 w-9 rounded-xl bg-white flex items-center justify-center mr-3">
+                <svg class="h-5 w-5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
                 </svg>
             </div>
-            <h3 class="text-lg font-bold text-slate-900">Filtre Avansate</h3>
+            <h3 class="text-lg font-bold text-white">Filtre Avansate</h3>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             <!-- Search -->
             <div class="lg:col-span-2">
-                <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Caută</label>
+                <label for="search" class="block text-sm font-medium text-apple-black-300 mb-1">Caută</label>
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="h-5 w-5 text-apple-black-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
                     </div>
                     <input type="text" name="search" id="search" value="{{ request('search') }}"
-                           class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
+                           class="block w-full pl-10 pr-3 py-2 bg-apple-black-800 border border-apple-black-700 text-white rounded-xl focus:ring-white focus:border-white placeholder-apple-black-500"
                            placeholder="Titlu, număr, descriere...">
                 </div>
             </div>
 
             <!-- Chamber -->
             <div>
-                <label for="chamber" class="block text-sm font-medium text-gray-700 mb-1">Cameră</label>
-                <select name="chamber" id="chamber" class="block w-full border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+                <label for="chamber" class="block text-sm font-medium text-apple-black-300 mb-1">Cameră</label>
+                <select name="chamber" id="chamber" class="block w-full bg-apple-black-800 border-apple-black-700 text-white rounded-xl focus:ring-white focus:border-white">
                     <option value="">Toate</option>
                     <option value="cdep" {{ request('chamber') == 'cdep' ? 'selected' : '' }}>Camera Deputaților</option>
                     <option value="senate" {{ request('chamber') == 'senate' ? 'selected' : '' }}>Senat</option>
@@ -64,8 +64,8 @@
 
             <!-- Status -->
             <div>
-                <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                <select name="status" id="status" class="block w-full border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+                <label for="status" class="block text-sm font-medium text-apple-black-300 mb-1">Status</label>
+                <select name="status" id="status" class="block w-full bg-apple-black-800 border-apple-black-700 text-white rounded-xl focus:ring-white focus:border-white">
                     <option value="">Toate</option>
                     @foreach($statuses as $status)
                     <option value="{{ $status }}" {{ request('status') == $status ? 'selected' : '' }}>
@@ -77,8 +77,8 @@
 
             <!-- Year -->
             <div>
-                <label for="year" class="block text-sm font-medium text-gray-700 mb-1">An</label>
-                <select name="year" id="year" class="block w-full border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+                <label for="year" class="block text-sm font-medium text-apple-black-300 mb-1">An</label>
+                <select name="year" id="year" class="block w-full bg-apple-black-800 border-apple-black-700 text-white rounded-xl focus:ring-white focus:border-white">
                     <option value="">Toate</option>
                     @foreach($years as $year)
                     <option value="{{ $year }}" {{ request('year') == $year ? 'selected' : '' }}>{{ $year }}</option>
