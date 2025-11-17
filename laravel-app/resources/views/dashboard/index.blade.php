@@ -5,38 +5,40 @@
 @section('content')
 <div class="space-y-8">
     <!-- Hero Section -->
-    <div class="gradient-bg rounded-2xl p-8 md:p-10 text-white shadow-2xl relative">
+    <div class="gradient-bg rounded-3xl p-10 md:p-12 text-white shadow-2xl relative overflow-hidden">
         <div class="relative z-10">
             <div class="flex flex-col md:flex-row items-start md:items-center justify-between">
                 <div class="max-w-2xl">
-                    <div class="inline-flex items-center px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 mb-4">
-                        <span class="relative flex h-2 w-2 mr-2">
-                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                            <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                    <div class="inline-flex items-center px-4 py-2 rounded-full bg-white/20 backdrop-blur-md border border-white/30 mb-5 shadow-lg">
+                        <span class="relative flex h-2.5 w-2.5 mr-2.5">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-300 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400"></span>
                         </span>
-                        <span class="text-xs font-semibold text-white/90">Sistem Activ</span>
+                        <span class="text-sm font-bold text-white/95 uppercase tracking-wide">Sistem Operațional</span>
                     </div>
-                    <h1 class="text-4xl md:text-5xl font-bold mb-3 leading-tight">
+                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 leading-tight tracking-tight">
                         Monitorizare Legislativă
-                        <span class="block text-indigo-200">România</span>
                     </h1>
-                    <p class="text-indigo-100 text-lg font-medium leading-relaxed">
-                        Transparență și analiză automată a procesului legislativ în timp real
+                    <p class="text-xl md:text-2xl font-semibold text-cyan-100 mb-3">
+                        Parlamentul României
+                    </p>
+                    <p class="text-white/90 text-base md:text-lg leading-relaxed max-w-xl">
+                        Sistem profesional de monitorizare în timp real a procesului legislativ cu analiză automată și alertare inteligentă
                     </p>
                 </div>
-                <div class="mt-6 md:mt-0 flex items-center space-x-3">
-                    <div class="text-center bg-white/15 rounded-xl px-5 py-3 backdrop-blur-md border border-white/20 shadow-lg">
-                        <div class="text-3xl font-bold">{{ $stats['total_bills'] }}</div>
-                        <div class="text-xs text-indigo-100 font-medium mt-1">Proiecte</div>
+                <div class="mt-8 md:mt-0 grid grid-cols-2 gap-4">
+                    <div class="text-center bg-white/15 rounded-2xl px-6 py-4 backdrop-blur-md border border-white/25 shadow-xl">
+                        <div class="text-4xl font-bold mb-1">{{ $stats['total_bills'] }}</div>
+                        <div class="text-xs text-cyan-100 font-semibold uppercase tracking-wider">Proiecte</div>
                     </div>
-                    <div class="text-center bg-white/15 rounded-xl px-5 py-3 backdrop-blur-md border border-white/20 shadow-lg">
-                        <div class="text-3xl font-bold">{{ $stats['active_bills'] }}</div>
-                        <div class="text-xs text-indigo-100 font-medium mt-1">Active</div>
+                    <div class="text-center bg-white/15 rounded-2xl px-6 py-4 backdrop-blur-md border border-white/25 shadow-xl">
+                        <div class="text-4xl font-bold mb-1">{{ $stats['active_bills'] }}</div>
+                        <div class="text-xs text-cyan-100 font-semibold uppercase tracking-wider">Active</div>
                     </div>
                     @if($lastScrapeJob)
-                    <div class="hidden lg:block text-center bg-white/15 rounded-xl px-5 py-3 backdrop-blur-md border border-white/20 shadow-lg">
-                        <div class="text-xs text-indigo-100 font-medium mb-1">Actualizat</div>
-                        <div class="text-sm font-bold">{{ $lastScrapeJob->completed_at->diffForHumans() }}</div>
+                    <div class="col-span-2 text-center bg-white/15 rounded-2xl px-6 py-3 backdrop-blur-md border border-white/25 shadow-xl">
+                        <div class="text-xs text-cyan-100 font-semibold uppercase tracking-wider mb-1">Actualizat</div>
+                        <div class="text-base font-bold font-mono">{{ $lastScrapeJob->completed_at->format('H:i') }} • {{ $lastScrapeJob->completed_at->format('d.m.Y') }}</div>
                     </div>
                     @endif
                 </div>
@@ -45,89 +47,55 @@
     </div>
 
     <!-- Stats Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-        <!-- Total Bills -->
-        <div class="stat-card group">
-            <div class="flex items-center justify-between mb-4">
-                <div class="h-12 w-12 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/30 group-hover:shadow-indigo-500/50 transition-shadow">
-                    <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                </div>
-                <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Total</span>
-            </div>
-            <div>
-                <p class="text-3xl font-bold text-gray-900 mb-1">{{ $stats['total_bills'] }}</p>
-                <p class="text-sm font-medium text-gray-600">Proiecte de Lege</p>
-                <p class="text-xs text-gray-500 mt-2">Toate camerele</p>
-            </div>
-        </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <x-stat-card
+            title="Total Proiecte"
+            :value="$stats['total_bills']"
+            subtitle="Toate camerele parlamentare"
+            color="slate"
+            :icon="'<svg class=\'h-7 w-7 text-white\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\' stroke-width=\'2.5\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' d=\'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z\' /></svg>'"
+        />
 
-        <!-- Active Bills -->
-        <div class="stat-card group">
-            <div class="flex items-center justify-between mb-4">
-                <div class="h-12 w-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30 group-hover:shadow-blue-500/50 transition-shadow">
-                    <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                    </svg>
-                </div>
-                <span class="text-xs font-semibold text-blue-600 uppercase tracking-wider bg-blue-50 px-2 py-1 rounded">Activ</span>
-            </div>
-            <div>
-                <p class="text-3xl font-bold text-blue-600 mb-1">{{ $stats['active_bills'] }}</p>
-                <p class="text-sm font-medium text-gray-600">În Desfășurare</p>
-                <p class="text-xs text-gray-500 mt-2">Comisii + Dezbateri</p>
-            </div>
-        </div>
+        <x-stat-card
+            title="În Desfășurare"
+            :value="$stats['active_bills']"
+            subtitle="Comisii și dezbateri parlamentare"
+            color="blue"
+            :icon="'<svg class=\'h-7 w-7 text-white\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\' stroke-width=\'2.5\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' d=\'M13 10V3L4 14h7v7l9-11h-7z\' /></svg>'"
+        />
 
-        <!-- Urgent Bills -->
-        <div class="stat-card group">
-            <div class="flex items-center justify-between mb-4">
-                <div class="h-12 w-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg shadow-orange-500/30 group-hover:shadow-orange-500/50 transition-shadow">
-                    <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                </div>
-                <span class="text-xs font-semibold text-orange-600 uppercase tracking-wider bg-orange-50 px-2 py-1 rounded">Urgent</span>
-            </div>
-            <div>
-                <p class="text-3xl font-bold text-orange-600 mb-1">{{ $stats['urgent_bills'] }}</p>
-                <p class="text-sm font-medium text-gray-600">Procedură Urgentă</p>
-                <p class="text-xs text-gray-500 mt-2">Necesită atenție</p>
-            </div>
-        </div>
+        <x-stat-card
+            title="Procedură Urgentă"
+            :value="$stats['urgent_bills']"
+            subtitle="Necesită atenție prioritară"
+            color="amber"
+            :icon="'<svg class=\'h-7 w-7 text-white\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\' stroke-width=\'2.5\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' d=\'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z\' /></svg>'"
+        />
 
-        <!-- High Risk Bills -->
-        <div class="stat-card group">
-            <div class="flex items-center justify-between mb-4">
-                <div class="h-12 w-12 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center shadow-lg shadow-red-500/30 group-hover:shadow-red-500/50 transition-shadow">
-                    <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                    </svg>
-                </div>
-                <span class="text-xs font-semibold text-red-600 uppercase tracking-wider bg-red-50 px-2 py-1 rounded">Risc</span>
-            </div>
-            <div>
-                <p class="text-3xl font-bold text-red-600 mb-1">{{ $stats['high_risk_bills'] }}</p>
-                <p class="text-sm font-medium text-gray-600">Risc Ridicat</p>
-                <p class="text-xs text-gray-500 mt-2">Analiză AI</p>
-            </div>
-        </div>
+        <x-stat-card
+            title="Risc Ridicat"
+            :value="$stats['high_risk_bills']"
+            subtitle="Identificate prin analiză AI"
+            color="red"
+            :icon="'<svg class=\'h-7 w-7 text-white\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\' stroke-width=\'2.5\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' d=\'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z\' /></svg>'"
+        />
     </div>
 
     <!-- Charts Row -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Bills by Status -->
-        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Proiecte pe Status</h3>
+        <x-chart-card
+            title="Proiecte pe Status"
+            subtitle="Distribuția proiectelor după stadiul de procesare"
+        >
             <canvas id="statusChart" height="250"></canvas>
-        </div>
+        </x-chart-card>
 
-        <!-- Bills by Chamber -->
-        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Distribuție pe Cameră</h3>
+        <x-chart-card
+            title="Distribuție pe Cameră"
+            subtitle="Camera Deputaților vs. Senat"
+        >
             <canvas id="chamberChart" height="250"></canvas>
-        </div>
+        </x-chart-card>
     </div>
 
     <!-- Activity Timeline -->
@@ -222,15 +190,32 @@
     </div>
 
     <!-- Bills per Month Chart -->
-    <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4">Evoluție Ultimele 6 Luni</h3>
+    <x-chart-card
+        title="Evoluție Activitate Legislativă"
+        subtitle="Proiecte înregistrate în ultimele 6 luni"
+    >
         <canvas id="monthlyChart" height="80"></canvas>
-    </div>
+    </x-chart-card>
 </div>
 
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Corporate color palette
+    const colors = {
+        primary: 'rgb(2, 132, 199)',      // blue-600
+        primaryLight: 'rgba(2, 132, 199, 0.1)',
+        secondary: 'rgb(6, 182, 212)',    // cyan-500
+        slate: 'rgb(71, 85, 105)',        // slate-600
+        amber: 'rgb(245, 158, 11)',       // amber-500
+        emerald: 'rgb(16, 185, 129)',     // emerald-500
+        red: 'rgb(239, 68, 68)',          // red-500
+    };
+
+    // Global Chart.js defaults
+    Chart.defaults.font.family = "'IBM Plex Sans', sans-serif";
+    Chart.defaults.color = '#475569';
+
     // Bills by Status Chart
     const statusCtx = document.getElementById('statusChart').getContext('2d');
     new Chart(statusCtx, {
@@ -240,21 +225,36 @@ document.addEventListener('DOMContentLoaded', function() {
             datasets: [{
                 label: 'Proiecte',
                 data: {!! $billsByStatus->pluck('total')->toJson() !!},
-                backgroundColor: 'rgba(99, 102, 241, 0.8)',
-                borderColor: 'rgb(99, 102, 241)',
-                borderWidth: 1,
-                borderRadius: 6,
+                backgroundColor: colors.primary,
+                borderColor: colors.primary,
+                borderWidth: 0,
+                borderRadius: 8,
+                barThickness: 40,
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: { display: false }
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                    titleFont: { size: 14, weight: 'bold' },
+                    bodyFont: { size: 13 },
+                    padding: 12,
+                    cornerRadius: 8,
+                }
             },
             scales: {
-                y: { beginAtZero: true, grid: { color: 'rgba(0, 0, 0, 0.05)' } },
-                x: { grid: { display: false } }
+                y: {
+                    beginAtZero: true,
+                    grid: { color: 'rgba(226, 232, 240, 0.5)', drawBorder: false },
+                    ticks: { font: { size: 12, weight: '500' } }
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: { font: { size: 12, weight: '500' } }
+                }
             }
         }
     });
@@ -267,19 +267,34 @@ document.addEventListener('DOMContentLoaded', function() {
             labels: ['Camera Deputaților', 'Senat'],
             datasets: [{
                 data: [{{ $billsByChamber['cdep'] ?? 0 }}, {{ $billsByChamber['senate'] ?? 0 }}],
-                backgroundColor: [
-                    'rgba(59, 130, 246, 0.8)',
-                    'rgba(147, 51, 234, 0.8)'
-                ],
-                borderWidth: 0,
+                backgroundColor: [colors.primary, colors.secondary],
+                borderWidth: 4,
+                borderColor: '#ffffff',
+                hoverOffset: 8,
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: { position: 'bottom' }
-            }
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 20,
+                        font: { size: 13, weight: '600' },
+                        usePointStyle: true,
+                        pointStyle: 'circle',
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                    titleFont: { size: 14, weight: 'bold' },
+                    bodyFont: { size: 13 },
+                    padding: 12,
+                    cornerRadius: 8,
+                }
+            },
+            cutout: '65%',
         }
     });
 
@@ -292,25 +307,45 @@ document.addEventListener('DOMContentLoaded', function() {
             datasets: [{
                 label: 'Proiecte Înregistrate',
                 data: {!! $billsPerMonth->pluck('total')->toJson() !!},
-                borderColor: 'rgb(99, 102, 241)',
-                backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                borderColor: colors.primary,
+                backgroundColor: colors.primaryLight,
                 tension: 0.4,
                 fill: true,
-                pointBackgroundColor: 'rgb(99, 102, 241)',
-                pointBorderColor: '#fff',
-                pointBorderWidth: 2,
-                pointRadius: 4,
+                pointBackgroundColor: colors.primary,
+                pointBorderColor: '#ffffff',
+                pointBorderWidth: 3,
+                pointRadius: 5,
+                pointHoverRadius: 7,
+                borderWidth: 3,
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: { display: false }
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                    titleFont: { size: 14, weight: 'bold' },
+                    bodyFont: { size: 13 },
+                    padding: 12,
+                    cornerRadius: 8,
+                }
             },
             scales: {
-                y: { beginAtZero: true, grid: { color: 'rgba(0, 0, 0, 0.05)' } },
-                x: { grid: { display: false } }
+                y: {
+                    beginAtZero: true,
+                    grid: { color: 'rgba(226, 232, 240, 0.5)', drawBorder: false },
+                    ticks: { font: { size: 12, weight: '500' } }
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: { font: { size: 12, weight: '500' } }
+                }
+            },
+            interaction: {
+                intersect: false,
+                mode: 'index',
             }
         }
     });

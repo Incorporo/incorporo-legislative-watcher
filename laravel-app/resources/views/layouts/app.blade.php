@@ -18,23 +18,41 @@
 
     <!-- Custom Styles -->
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
 
-        * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+        * {
+            font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .font-mono { font-family: 'IBM Plex Mono', 'Courier New', monospace; }
 
         [x-cloak] { display: none !important; }
 
         :root {
-            --primary-50: #eef2ff;
-            --primary-100: #e0e7ff;
-            --primary-500: #6366f1;
-            --primary-600: #4f46e5;
-            --primary-700: #4338ca;
-            --primary-900: #312e81;
+            --primary-50: #f0f9ff;
+            --primary-100: #e0f2fe;
+            --primary-500: #0ea5e9;
+            --primary-600: #0284c7;
+            --primary-700: #0369a1;
+            --primary-900: #0c4a6e;
+
+            --slate-50: #f8fafc;
+            --slate-100: #f1f5f9;
+            --slate-200: #e2e8f0;
+            --slate-600: #475569;
+            --slate-700: #334155;
+            --slate-900: #0f172a;
+        }
+
+        body {
+            background: linear-gradient(to bottom, #f8fafc 0%, #ffffff 100%);
+            min-height: 100vh;
         }
 
         .gradient-bg {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #0369a1 0%, #0891b2 50%, #06b6d4 100%);
             position: relative;
             overflow: hidden;
         }
@@ -46,61 +64,59 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-            opacity: 0.3;
+            background: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M0 0h40v40H0V0zm40 40h40v40H40V40z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            opacity: 1;
         }
 
         .glass {
-            background: rgba(255, 255, 255, 0.98);
+            background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(12px) saturate(180%);
-            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.08);
         }
 
         .card-hover {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 1px solid rgba(0, 0, 0, 0.06);
+            border: 1px solid #e2e8f0;
         }
 
         .card-hover:hover {
             transform: translateY(-2px);
-            box-shadow: 0 12px 24px -4px rgba(99, 102, 241, 0.12), 0 8px 16px -4px rgba(0, 0, 0, 0.08);
-            border-color: rgba(99, 102, 241, 0.2);
+            box-shadow: 0 12px 28px -4px rgba(2, 132, 199, 0.1), 0 8px 16px -4px rgba(15, 23, 42, 0.08);
+            border-color: #cbd5e1;
         }
 
         .badge-critical {
-            @apply bg-red-50 text-red-700 ring-1 ring-red-600/20 font-semibold;
-            text-shadow: 0 1px 0 rgba(255,255,255,0.5);
+            @apply bg-red-50 text-red-700 ring-1 ring-red-600/30 font-semibold;
         }
         .badge-high {
-            @apply bg-orange-50 text-orange-700 ring-1 ring-orange-600/20 font-semibold;
-            text-shadow: 0 1px 0 rgba(255,255,255,0.5);
+            @apply bg-amber-50 text-amber-700 ring-1 ring-amber-600/30 font-semibold;
         }
         .badge-medium {
-            @apply bg-amber-50 text-amber-700 ring-1 ring-amber-600/20 font-semibold;
-            text-shadow: 0 1px 0 rgba(255,255,255,0.5);
+            @apply bg-yellow-50 text-yellow-700 ring-1 ring-yellow-600/30 font-semibold;
         }
         .badge-low {
-            @apply bg-emerald-50 text-emerald-700 ring-1 ring-emerald-600/20 font-semibold;
-            text-shadow: 0 1px 0 rgba(255,255,255,0.5);
+            @apply bg-emerald-50 text-emerald-700 ring-1 ring-emerald-600/30 font-semibold;
         }
 
         .status-badge {
-            @apply inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold ring-1 ring-inset;
-            letter-spacing: 0.01em;
+            @apply inline-flex items-center rounded-lg px-2.5 py-1 text-xs font-semibold ring-1 ring-inset;
+            letter-spacing: 0.025em;
         }
 
         .nav-link {
-            @apply relative rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200;
+            @apply relative rounded-lg px-3 py-2 text-sm font-semibold transition-all duration-200;
+            color: #475569;
         }
 
         .nav-link:not(.active):hover {
-            @apply bg-gray-50;
+            @apply bg-slate-50;
+            color: #0f172a;
         }
 
         .nav-link.active {
-            @apply bg-indigo-50 text-indigo-700;
-            box-shadow: inset 0 1px 2px 0 rgba(99, 102, 241, 0.1);
+            @apply bg-blue-50 text-blue-700;
+            box-shadow: inset 0 1px 2px 0 rgba(2, 132, 199, 0.1);
         }
 
         .nav-link.active::before {
@@ -111,32 +127,34 @@
             transform: translateY(-50%);
             width: 3px;
             height: 70%;
-            background: linear-gradient(180deg, #6366f1, #4f46e5);
+            background: linear-gradient(180deg, #0284c7, #0369a1);
             border-radius: 0 2px 2px 0;
         }
 
         .stat-card {
-            @apply bg-white rounded-xl p-6 border;
-            border-color: rgba(0, 0, 0, 0.06);
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+            @apply bg-white rounded-2xl p-6 border;
+            border-color: #e2e8f0;
+            box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.08);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .stat-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.1);
-            border-color: rgba(99, 102, 241, 0.15);
+            box-shadow: 0 8px 20px -4px rgba(2, 132, 199, 0.15);
+            border-color: #cbd5e1;
         }
 
         .btn-primary {
-            @apply inline-flex items-center px-4 py-2.5 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white;
-            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            @apply inline-flex items-center px-4 py-2.5 border border-transparent rounded-lg shadow-sm text-sm font-bold text-white;
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
             transition: all 0.2s;
+            letter-spacing: 0.025em;
         }
 
         .btn-primary:hover {
             transform: translateY(-1px);
-            box-shadow: 0 6px 16px -4px rgba(99, 102, 241, 0.4);
+            box-shadow: 0 8px 20px -4px rgba(2, 132, 199, 0.5);
+            background: linear-gradient(135deg, #0369a1 0%, #075985 100%);
         }
 
         .btn-primary:active {
@@ -168,15 +186,20 @@
                 <div class="flex h-16 items-center justify-between">
                     <!-- Logo -->
                     <div class="flex items-center">
-                        <a href="{{ route('dashboard') }}" class="flex items-center">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600">
-                                <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        <a href="{{ route('dashboard') }}" class="flex items-center group">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-cyan-600 shadow-lg shadow-blue-500/30 group-hover:shadow-blue-500/50 transition-all">
+                                <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                 </svg>
                             </div>
-                            <span class="ml-3 text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                                Legislative Watcher
-                            </span>
+                            <div class="ml-3">
+                                <span class="block text-xl font-bold text-slate-900 leading-tight">
+                                    Legislative Watcher
+                                </span>
+                                <span class="block text-xs font-semibold text-blue-600 uppercase tracking-wider">
+                                    România
+                                </span>
+                            </div>
                         </a>
                     </div>
 

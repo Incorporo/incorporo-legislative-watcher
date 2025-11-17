@@ -3,52 +3,55 @@
     'value',
     'subtitle' => null,
     'icon' => null,
-    'color' => 'indigo',
+    'color' => 'blue',
     'trend' => null,
     'trendDirection' => 'up'
 ])
 
 @php
     $colors = [
-        'indigo' => 'bg-indigo-100 text-indigo-600',
-        'blue' => 'bg-blue-100 text-blue-600',
-        'green' => 'bg-green-100 text-green-600',
-        'red' => 'bg-red-100 text-red-600',
-        'orange' => 'bg-orange-100 text-orange-600',
-        'purple' => 'bg-purple-100 text-purple-600',
-        'yellow' => 'bg-yellow-100 text-yellow-600',
+        'blue' => 'from-blue-600 to-blue-700 shadow-blue-500/20',
+        'teal' => 'from-teal-600 to-teal-700 shadow-teal-500/20',
+        'amber' => 'from-amber-600 to-amber-700 shadow-amber-500/20',
+        'red' => 'from-red-600 to-red-700 shadow-red-500/20',
+        'slate' => 'from-slate-600 to-slate-700 shadow-slate-500/20',
+        'emerald' => 'from-emerald-600 to-emerald-700 shadow-emerald-500/20',
     ];
-    $colorClass = $colors[$color] ?? $colors['indigo'];
+    $colorClass = $colors[$color] ?? $colors['blue'];
 @endphp
 
-<div class="bg-white rounded-xl shadow-sm p-6 card-hover border border-gray-100">
-    <div class="flex items-center justify-between">
+<div class="stat-card group bg-white rounded-2xl p-6 border border-slate-200 hover:border-slate-300 transition-all duration-300">
+    <div class="flex items-start justify-between">
         <div class="flex-1">
-            <p class="text-sm font-medium text-gray-600">{{ $title }}</p>
-            <p class="text-3xl font-bold text-gray-900 mt-2">{{ $value }}</p>
-            @if($subtitle)
-            <p class="text-xs text-gray-500 mt-1">{{ $subtitle }}</p>
-            @endif
-            @if($trend)
-            <div class="flex items-center mt-2">
-                @if($trendDirection === 'up')
-                <svg class="h-4 w-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
-                </svg>
-                @else
-                <svg class="h-4 w-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"/>
-                </svg>
+            <div class="flex items-center justify-between mb-4">
+                <p class="text-sm font-semibold text-slate-600 uppercase tracking-wide">{{ $title }}</p>
+                @if($trend)
+                    <span class="text-xs font-bold {{ $trendDirection === 'up' ? 'text-emerald-600' : 'text-red-600' }} flex items-center">
+                        @if($trendDirection === 'up')
+                            <svg class="w-3 h-3 mr-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/>
+                            </svg>
+                        @else
+                            <svg class="w-3 h-3 mr-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
+                            </svg>
+                        @endif
+                        {{ $trend }}
+                    </span>
                 @endif
-                <span class="ml-1 text-sm {{ $trendDirection === 'up' ? 'text-green-600' : 'text-red-600' }}">
-                    {{ $trend }}
-                </span>
             </div>
+            <div class="mb-3">
+                <p class="text-4xl font-bold text-slate-900 tracking-tight">{{ $value }}</p>
+            </div>
+            @if($subtitle)
+                <p class="text-sm text-slate-500 font-medium">{{ $subtitle }}</p>
             @endif
         </div>
         @if($icon)
-        <div class="h-12 w-12 {{ $colorClass }} rounded-lg flex items-center justify-center flex-shrink-0 ml-4">
-            {!! $icon !!}
+        <div class="ml-4 flex-shrink-0">
+            <div class="w-14 h-14 rounded-xl bg-gradient-to-br {{ $colorClass }} flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow duration-300">
+                {!! $icon !!}
+            </div>
         </div>
         @endif
     </div>
