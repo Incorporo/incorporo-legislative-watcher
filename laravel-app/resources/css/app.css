@@ -1,3 +1,54 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    /* Apple-inspired scrollbar styling */
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(160, 160, 160, 0.3) transparent;
+    }
+
+    *::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    *::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    *::-webkit-scrollbar-thumb {
+        background-color: rgba(160, 160, 160, 0.3);
+        border-radius: 10px;
+        border: 2px solid transparent;
+        background-clip: content-box;
+    }
+
+    *::-webkit-scrollbar-thumb:hover {
+        background-color: rgba(160, 160, 160, 0.5);
+    }
+
+    /* Smooth scrolling */
+    html {
+        scroll-behavior: smooth;
+    }
+
+    /* Selection color */
+    ::selection {
+        background-color: rgba(255, 255, 255, 0.2);
+        color: white;
+    }
+
+    ::-moz-selection {
+        background-color: rgba(255, 255, 255, 0.2);
+        color: white;
+    }
+}
+
+@layer components {
+    /* Custom focus styles for Apple-like experience */
+    .focus-apple {
+        @apply focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black;
+    }
+}
