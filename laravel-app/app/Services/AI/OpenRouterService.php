@@ -21,6 +21,15 @@ class OpenRouterService
         $this->maxTokens = config('services.openrouter.max_tokens', 4096);
         $this->temperature = config('services.openrouter.temperature', 0.7);
 
+        // Don't throw exception during construction, check when actually used
+        // This allows Laravel to bootstrap without API key configured
+    }
+
+    /**
+     * Check if API key is configured
+     */
+    protected function ensureApiKeyConfigured(): void
+    {
         if (!$this->apiKey) {
             throw new Exception('OpenRouter API key not configured. Please set OPENROUTER_API_KEY in .env');
         }
@@ -36,6 +45,8 @@ class OpenRouterService
      */
     public function analyzeBill(string $title, ?string $description = null, ?string $fullText = null): array
     {
+        $this->ensureApiKeyConfigured();
+
         $startTime = microtime(true);
 
         try {

@@ -110,8 +110,9 @@
 
     <script>
         function editSearch(id) {
-            // TODO: Implement edit modal
-            alert('Edit functionality will be implemented with Alpine.js modal');
+            // NOTE: Edit modal can be implemented using Alpine.js pattern from tags/index.blade.php
+            // For now, use re-save workflow
+            alert('To edit this search, modify filters and save again with the same name');
         }
     </script>
 </x-app-layout>
