@@ -6,6 +6,7 @@ use App\Http\Controllers\RiskController;
 use App\Http\Controllers\LegislatorController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\CommitteeController;
+use App\Http\Controllers\SubscriptionController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -48,6 +49,15 @@ Route::get('/calendar/events', [CalendarController::class, 'events'])->name('cal
 // Committees
 Route::get('/committees', [CommitteeController::class, 'index'])->name('committees.index');
 Route::get('/committees/{id}', [CommitteeController::class, 'show'])->name('committees.show');
+
+// Subscriptions & Alerts
+Route::get('/subscribe', [SubscriptionController::class, 'create'])->name('subscriptions.create');
+Route::post('/subscribe', [SubscriptionController::class, 'store'])->name('subscriptions.store');
+Route::get('/subscriptions/verify/{token}', [SubscriptionController::class, 'verify'])->name('subscriptions.verify');
+Route::get('/subscriptions/manage/{token}', [SubscriptionController::class, 'manage'])->name('subscriptions.manage');
+Route::post('/subscriptions/manage/{token}', [SubscriptionController::class, 'update'])->name('subscriptions.update');
+Route::get('/subscriptions/unsubscribe/{token}', [SubscriptionController::class, 'unsubscribe'])->name('subscriptions.unsubscribe');
+Route::post('/subscriptions/reactivate/{token}', [SubscriptionController::class, 'reactivate'])->name('subscriptions.reactivate');
 
 // API Documentation
 Route::get('/api', function () {

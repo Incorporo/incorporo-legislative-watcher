@@ -262,6 +262,14 @@
                             </svg>
                             <span class="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 text-xs text-white flex items-center justify-center">3</span>
                         </button>
+
+                        <!-- Subscribe Button -->
+                        <a href="{{ route('subscriptions.create') }}" class="inline-flex items-center px-4 py-2 rounded-lg font-semibold text-sm bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-md hover:shadow-lg hover:from-blue-700 hover:to-cyan-700 transition-all transform hover:-translate-y-0.5">
+                            <svg class="h-4 w-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                            </svg>
+                            Abonează-te
+                        </a>
                     </div>
 
                     <!-- Mobile menu button -->
@@ -283,6 +291,7 @@
                     <a href="{{ route('bills.index') }}" class="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100">Proiecte de Lege</a>
                     <a href="{{ route('risks.index') }}" class="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100">Riscuri</a>
                     <a href="#" class="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100">Calendar</a>
+                    <a href="{{ route('subscriptions.create') }}" class="block rounded-md px-3 py-2 text-base font-medium bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-md">Abonează-te la Alerte</a>
                 </div>
             </div>
         </nav>

@@ -19,6 +19,29 @@ return [
 
     'max_retries' => env('SCRAPER_MAX_RETRIES', 3),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Proxy Configuration
+    |--------------------------------------------------------------------------
+    |
+    | HTTP/HTTPS proxy settings for bypassing anti-bot protection.
+    | Supports residential and datacenter proxies.
+    |
+    | Format: http://username:password@host:port
+    | Example: http://user:pass@proxy.example.com:8080
+    |
+    | You can also provide multiple proxies (comma-separated) for rotation:
+    | SCRAPER_PROXY="http://proxy1.com:8080,http://proxy2.com:8080"
+    |
+    */
+
+    'proxy_enabled' => env('SCRAPER_PROXY_ENABLED', false),
+
+    'proxy' => env('SCRAPER_PROXY', null),
+
+    // If true, will rotate through multiple proxies if provided
+    'proxy_rotation' => env('SCRAPER_PROXY_ROTATION', true),
+
     'cdep' => [
         'base_url' => env('CDEP_BASE_URL', 'https://www.cdep.ro'),
     ],
