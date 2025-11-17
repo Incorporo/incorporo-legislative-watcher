@@ -4,7 +4,7 @@
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 My Tags
             </h2>
-            <button onclick="openCreateModal()" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
+            <button @click="$dispatch('show-create-tag-modal')" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
                 Create New Tag
             </button>
         </div>
@@ -70,32 +70,150 @@
         </div>
     </div>
 
-    <!-- Create/Edit Tag Modal (placeholder) -->
+    <!-- Create Tag Modal -->
+    <div x-data="{ showModal: false, tag: { name: '', color: '#3b82f6', description: '' } }"
+         @show-create-tag-modal.window="showModal = true"
+         x-cloak>
+        <!-- Trigger handled by button click setting showModal = true -->
+
+        <!-- Modal Overlay -->
+        <div x-show="showModal"
+             class="fixed inset-0 z-50 overflow-y-auto"
+             aria-labelledby="modal-title"
+             role="dialog"
+             aria-modal="true"
+             @keydown.escape.window="showModal = false">
+
+            <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                <!-- Background overlay -->
+                <div x-show="showModal"
+                     x-transition:enter="ease-out duration-300"
+                     x-transition:enter-start="opacity-0"
+                     x-transition:enter-end="opacity-100"
+                     x-transition:leave="ease-in duration-200"
+                     x-transition:leave-start="opacity-100"
+                     x-transition:leave-end="opacity-0"
+                     class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+                     @click="showModal = false"></div>
+
+                <!-- Center modal -->
+                <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+                <!-- Modal panel -->
+                <div x-show="showModal"
+                     x-transition:enter="ease-out duration-300"
+                     x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                     x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                     x-transition:leave="ease-in duration-200"
+                     x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                     x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                     class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+
+                    <form method="POST" action="{{ route('tags.store') }}">
+                        @csrf
+                        <div>
+                            <div class="mt-3 text-center sm:mt-0 sm:text-left">
+                                <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                                    Create New Tag
+                                </h3>
+                                <div class="mt-6 space-y-4">
+                                    <!-- Tag Name -->
+                                    <div>
+                                        <label for="tag-name" class="block text-sm font-medium text-gray-700">
+                                            Tag Name <span class="text-red-500">*</span>
+                                        </label>
+                                        <input type="text"
+                                               name="name"
+                                               id="tag-name"
+                                               x-model="tag.name"
+                                               required
+                                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                               placeholder="e.g., Priority Bills">
+                                    </div>
+
+                                    <!-- Color Picker -->
+                                    <div>
+                                        <label for="tag-color" class="block text-sm font-medium text-gray-700">
+                                            Color
+                                        </label>
+                                        <div class="mt-1 flex items-center space-x-2">
+                                            <input type="color"
+                                                   name="color"
+                                                   id="tag-color"
+                                                   x-model="tag.color"
+                                                   class="h-10 w-20 border-gray-300 rounded">
+                                            <input type="text"
+                                                   x-model="tag.color"
+                                                   class="flex-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                                   placeholder="#3b82f6">
+                                        </div>
+                                    </div>
+
+                                    <!-- Description -->
+                                    <div>
+                                        <label for="tag-description" class="block text-sm font-medium text-gray-700">
+                                            Description
+                                        </label>
+                                        <textarea name="description"
+                                                  id="tag-description"
+                                                  x-model="tag.description"
+                                                  rows="3"
+                                                  class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                                  placeholder="Optional description for this tag"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
+                            <button type="submit"
+                                    class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm">
+                                Create Tag
+                            </button>
+                            <button type="button"
+                                    @click="showModal = false; tag = { name: '', color: '#3b82f6', description: '' }"
+                                    class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
     <script>
-        function openCreateModal() {
-            // TODO: Implement with Alpine.js modal
-            const name = prompt('Tag name:');
-            if (!name) return;
-
-            const color = prompt('Color (hex):', '#3b82f6');
-            const description = prompt('Description (optional):');
-
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = '{{ route("tags.store") }}';
-            form.innerHTML = `
-                @csrf
-                <input type="hidden" name="name" value="${name}">
-                <input type="hidden" name="color" value="${color}">
-                <input type="hidden" name="description" value="${description}">
-            `;
-            document.body.appendChild(form);
-            form.submit();
-        }
+        // Alpine.js component for tag manager
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('tagManager', () => ({
+                init() {
+                    // Initialization logic if needed
+                }
+            }));
+        });
 
         function editTag(id, name, color, description) {
-            // TODO: Implement with Alpine.js modal
-            alert('Edit functionality will be implemented with Alpine.js modal');
+            // For now, use a simple approach - could be enhanced with a separate edit modal
+            if (confirm('Edit tag: ' + name + '?')) {
+                const newName = prompt('Tag name:', name);
+                if (!newName) return;
+
+                const newColor = prompt('Color (hex):', color);
+                const newDescription = prompt('Description:', description || '');
+
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/tags/${id}`;
+                form.innerHTML = `
+                    @csrf
+                    @method('PATCH')
+                    <input type="hidden" name="name" value="${newName}">
+                    <input type="hidden" name="color" value="${newColor}">
+                    <input type="hidden" name="description" value="${newDescription}">
+                `;
+                document.body.appendChild(form);
+                form.submit();
+            }
         }
     </script>
 </x-app-layout>
