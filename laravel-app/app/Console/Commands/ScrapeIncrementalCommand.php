@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
+use App\Models\LegislativeBill;
+use App\Models\ScrapingJob;
 use App\Services\Scrapers\CDEPScraper;
 use App\Services\Scrapers\SenateScraper;
-use App\Models\ScrapingJob;
-use App\Models\LegislativeBill;
+use Illuminate\Console\Command;
 
 class ScrapeIncrementalCommand extends Command
 {
@@ -32,7 +32,7 @@ class ScrapeIncrementalCommand extends Command
     public function handle()
     {
         $chamber = $this->option('chamber');
-        $hours = (int)$this->option('hours');
+        $hours = (int) $this->option('hours');
 
         $this->info("Running incremental scrape (bills older than {$hours} hours)");
 
@@ -50,9 +50,9 @@ class ScrapeIncrementalCommand extends Command
             // Find bills that need updating
             $cutoff = now()->subHours($hours);
 
-            $query = LegislativeBill::where(function($q) use ($cutoff) {
+            $query = LegislativeBill::where(function ($q) use ($cutoff) {
                 $q->whereNull('last_scraped_at')
-                  ->orWhere('last_scraped_at', '<', $cutoff);
+                    ->orWhere('last_scraped_at', '<', $cutoff);
             });
 
             if ($chamber !== 'all') {
@@ -68,9 +68,9 @@ class ScrapeIncrementalCommand extends Command
                     ELSE 4
                 END
             ')
-            ->orderBy('last_scraped_at', 'asc')
-            ->limit(100) // Process max 100 bills per run
-            ->get();
+                ->orderBy('last_scraped_at', 'asc')
+                ->limit(100) // Process max 100 bills per run
+                ->get();
 
             $job->items_total = $bills->count();
             $job->save();
@@ -78,6 +78,7 @@ class ScrapeIncrementalCommand extends Command
             if ($bills->isEmpty()) {
                 $this->info('✅ No bills need updating');
                 $job->markAsCompleted();
+
                 return 0;
             }
 
@@ -86,7 +87,7 @@ class ScrapeIncrementalCommand extends Command
             $bar = $this->output->createProgressBar($bills->count());
 
             foreach ($bills as $bill) {
-                $scraper = $bill->chamber === 'cdep' ? new CDEPScraper() : new SenateScraper();
+                $scraper = $bill->chamber === 'cdep' ? new CDEPScraper : new SenateScraper;
 
                 try {
                     $details = $scraper->scrapeBillDetail(
@@ -101,7 +102,7 @@ class ScrapeIncrementalCommand extends Command
 
                 } catch (\Exception $e) {
                     $this->newLine();
-                    $this->warn("Failed to update bill {$bill->internal_id}: " . $e->getMessage());
+                    $this->warn("Failed to update bill {$bill->internal_id}: ".$e->getMessage());
                     $job->items_failed++;
                     $job->errors_count++;
                 }
@@ -112,12 +113,13 @@ class ScrapeIncrementalCommand extends Command
 
             $job->markAsCompleted();
 
-            $this->info("✅ Incremental scrape completed");
+            $this->info('✅ Incremental scrape completed');
             $this->info("  Created: {$job->items_created}, Updated: {$job->items_updated}, Failed: {$job->items_failed}");
 
         } catch (\Exception $e) {
             $job->markAsFailed($e->getMessage());
-            $this->error('❌ Error: ' . $e->getMessage());
+            $this->error('❌ Error: '.$e->getMessage());
+
             return 1;
         }
 

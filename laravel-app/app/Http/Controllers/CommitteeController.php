@@ -23,9 +23,9 @@ class CommitteeController extends Controller
         // Search
         if ($request->filled('search')) {
             $search = $request->input('search');
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('name_short', 'like', "%{$search}%");
+                    ->orWhere('name_short', 'like', "%{$search}%");
             });
         }
 
@@ -52,12 +52,12 @@ class CommitteeController extends Controller
     {
         $committee = Committee::with([
             'chair',
-            'members' => function($query) {
+            'members' => function ($query) {
                 $query->wherePivot('active', true);
             },
-            'bills' => function($query) {
+            'bills' => function ($query) {
                 $query->orderBy('committee_assignments.assigned_date', 'desc');
-            }
+            },
         ])->findOrFail($id);
 
         // Current assignments

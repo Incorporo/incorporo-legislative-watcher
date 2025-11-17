@@ -109,7 +109,7 @@ class TeamTask extends Model
      */
     public function isOverdue(): bool
     {
-        if (!$this->due_date || in_array($this->status, ['completed', 'cancelled'])) {
+        if (! $this->due_date || in_array($this->status, ['completed', 'cancelled'])) {
             return false;
         }
 

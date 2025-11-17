@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Legislator;
 use App\Models\LegislativeBill;
+use App\Models\Legislator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -29,10 +29,10 @@ class LegislatorController extends Controller
         // Search
         if ($request->filled('search')) {
             $search = $request->input('search');
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('first_name', 'like', "%{$search}%")
-                  ->orWhere('last_name', 'like', "%{$search}%");
+                    ->orWhere('first_name', 'like', "%{$search}%")
+                    ->orWhere('last_name', 'like', "%{$search}%");
             });
         }
 
@@ -93,17 +93,17 @@ class LegislatorController extends Controller
             'initiatedBills.bill',
             'coSponsoredBills.bill',
             'activeCommittees',
-            'chairedCommittees'
+            'chairedCommittees',
         ])->findOrFail($id);
 
         // Get recent bills
-        $recentBills = LegislativeBill::whereHas('initiators', function($query) use ($id) {
+        $recentBills = LegislativeBill::whereHas('initiators', function ($query) use ($id) {
             $query->where('legislator_id', $id);
         })
-        ->with(['risks', 'timeline'])
-        ->orderBy('registration_date', 'desc')
-        ->limit(10)
-        ->get();
+            ->with(['risks', 'timeline'])
+            ->orderBy('registration_date', 'desc')
+            ->limit(10)
+            ->get();
 
         // Calculate statistics
         $stats = [
@@ -115,24 +115,24 @@ class LegislatorController extends Controller
         ];
 
         // Activity timeline (last 6 months)
-        $activityTimeline = LegislativeBill::whereHas('initiators', function($query) use ($id) {
+        $activityTimeline = LegislativeBill::whereHas('initiators', function ($query) use ($id) {
             $query->where('legislator_id', $id);
         })
-        ->select(
-            DB::raw('DATE_FORMAT(registration_date, "%Y-%m") as month'),
-            DB::raw('count(*) as total')
-        )
-        ->where('registration_date', '>', now()->subMonths(6))
-        ->groupBy('month')
-        ->orderBy('month', 'asc')
-        ->get();
+            ->select(
+                DB::raw('DATE_FORMAT(registration_date, "%Y-%m") as month'),
+                DB::raw('count(*) as total')
+            )
+            ->where('registration_date', '>', now()->subMonths(6))
+            ->groupBy('month')
+            ->orderBy('month', 'asc')
+            ->get();
 
         // Success rate (passed bills / total bills)
-        $passedBills = LegislativeBill::whereHas('initiators', function($query) use ($id) {
+        $passedBills = LegislativeBill::whereHas('initiators', function ($query) use ($id) {
             $query->where('legislator_id', $id);
         })
-        ->where('status', 'passed')
-        ->count();
+            ->where('status', 'passed')
+            ->count();
 
         $successRate = $stats['total_bills'] > 0
             ? round(($passedBills / $stats['total_bills']) * 100, 1)

@@ -80,7 +80,7 @@ class ScrapingJob extends Model
             'status' => 'failed',
             'completed_at' => now(),
             'duration_seconds' => now()->diffInSeconds($this->started_at),
-            'error_log' => $this->error_log . "\n" . $errorMessage,
+            'error_log' => $this->error_log."\n".$errorMessage,
             'errors_count' => $this->errors_count + 1,
         ]);
     }

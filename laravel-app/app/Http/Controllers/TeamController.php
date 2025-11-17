@@ -60,7 +60,7 @@ class TeamController extends Controller
     public function show(Team $team)
     {
         // Check if user is a member
-        if (!$team->hasMember(Auth::id()) && $team->type !== 'public') {
+        if (! $team->hasMember(Auth::id()) && $team->type !== 'public') {
             abort(403, 'You are not a member of this team');
         }
 
@@ -74,7 +74,7 @@ class TeamController extends Controller
      */
     public function update(Request $request, Team $team)
     {
-        if (!$team->isAdministrator(Auth::id())) {
+        if (! $team->isAdministrator(Auth::id())) {
             abort(403, 'Only team administrators can update team settings');
         }
 
@@ -109,7 +109,7 @@ class TeamController extends Controller
      */
     public function addMember(Request $request, Team $team)
     {
-        if (!$team->isAdministrator(Auth::id())) {
+        if (! $team->isAdministrator(Auth::id())) {
             abort(403, 'Only administrators can add members');
         }
 
@@ -140,7 +140,7 @@ class TeamController extends Controller
      */
     public function removeMember(Team $team, TeamMember $member)
     {
-        if (!$team->isAdministrator(Auth::id()) && $member->user_id !== Auth::id()) {
+        if (! $team->isAdministrator(Auth::id()) && $member->user_id !== Auth::id()) {
             abort(403, 'Unauthorized');
         }
 

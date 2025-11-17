@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\SubscriptionVerification;
 use App\Models\BillSubscription;
-use App\Models\LegislativeBill;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
-use App\Mail\SubscriptionVerification;
 use Illuminate\Support\Facades\Validator;
 
 class SubscriptionController extends Controller
@@ -19,7 +18,7 @@ class SubscriptionController extends Controller
         // Get filter options for form
         $chambers = [
             'cdep' => 'Camera Deputaților',
-            'senat' => 'Senat'
+            'senat' => 'Senat',
         ];
 
         $statuses = [
@@ -28,20 +27,20 @@ class SubscriptionController extends Controller
             'plenary_debate' => 'Dezbatere plenară',
             'voted' => 'Votat',
             'promulgated' => 'Promulgat',
-            'rejected' => 'Respins'
+            'rejected' => 'Respins',
         ];
 
         $riskLevels = [
             'low' => 'Scăzut',
             'medium' => 'Mediu',
             'high' => 'Ridicat',
-            'critical' => 'Critic'
+            'critical' => 'Critic',
         ];
 
         $frequencies = [
             'instant' => 'Instant (la fiecare proiect)',
             'daily' => 'Zilnic (rezumat dimineața)',
-            'weekly' => 'Săptămânal (luni dimineața)'
+            'weekly' => 'Săptămânal (luni dimineața)',
         ];
 
         return view('subscriptions.create', compact('chambers', 'statuses', 'riskLevels', 'frequencies'));
@@ -105,7 +104,7 @@ class SubscriptionController extends Controller
         try {
             Mail::to($subscription->email)->send(new SubscriptionVerification($subscription));
         } catch (\Exception $e) {
-            \Log::error('Failed to send verification email: ' . $e->getMessage());
+            \Log::error('Failed to send verification email: '.$e->getMessage());
             // Don't fail the subscription creation if email fails
         }
 
@@ -119,9 +118,9 @@ class SubscriptionController extends Controller
     {
         $subscription = BillSubscription::where('verification_token', $token)->first();
 
-        if (!$subscription) {
+        if (! $subscription) {
             return view('subscriptions.error', [
-                'message' => 'Token de verificare invalid sau expirat.'
+                'message' => 'Token de verificare invalid sau expirat.',
             ]);
         }
 
@@ -144,16 +143,16 @@ class SubscriptionController extends Controller
     {
         $subscription = BillSubscription::where('unsubscribe_token', $token)->first();
 
-        if (!$subscription) {
+        if (! $subscription) {
             return view('subscriptions.error', [
-                'message' => 'Subscriere nu a fost găsită.'
+                'message' => 'Subscriere nu a fost găsită.',
             ]);
         }
 
         // Get filter options
         $chambers = [
             'cdep' => 'Camera Deputaților',
-            'senat' => 'Senat'
+            'senat' => 'Senat',
         ];
 
         $statuses = [
@@ -162,20 +161,20 @@ class SubscriptionController extends Controller
             'plenary_debate' => 'Dezbatere plenară',
             'voted' => 'Votat',
             'promulgated' => 'Promulgat',
-            'rejected' => 'Respins'
+            'rejected' => 'Respins',
         ];
 
         $riskLevels = [
             'low' => 'Scăzut',
             'medium' => 'Mediu',
             'high' => 'Ridicat',
-            'critical' => 'Critic'
+            'critical' => 'Critic',
         ];
 
         $frequencies = [
             'instant' => 'Instant (la fiecare proiect)',
             'daily' => 'Zilnic (rezumat dimineața)',
-            'weekly' => 'Săptămânal (luni dimineața)'
+            'weekly' => 'Săptămânal (luni dimineața)',
         ];
 
         // Get recent matching bills
@@ -191,7 +190,7 @@ class SubscriptionController extends Controller
     {
         $subscription = BillSubscription::where('unsubscribe_token', $token)->first();
 
-        if (!$subscription) {
+        if (! $subscription) {
             return back()->with('error', 'Subscriere nu a fost găsită.');
         }
 
@@ -242,15 +241,15 @@ class SubscriptionController extends Controller
     {
         $subscription = BillSubscription::where('unsubscribe_token', $token)->first();
 
-        if (!$subscription) {
+        if (! $subscription) {
             return view('subscriptions.error', [
-                'message' => 'Subscriere nu a fost găsită.'
+                'message' => 'Subscriere nu a fost găsită.',
             ]);
         }
 
-        if (!$subscription->active) {
+        if (! $subscription->active) {
             return view('subscriptions.error', [
-                'message' => 'Această subscriere este deja dezactivată.'
+                'message' => 'Această subscriere este deja dezactivată.',
             ]);
         }
 
@@ -266,7 +265,7 @@ class SubscriptionController extends Controller
     {
         $subscription = BillSubscription::where('unsubscribe_token', $token)->first();
 
-        if (!$subscription) {
+        if (! $subscription) {
             return back()->with('error', 'Subscriere nu a fost găsită.');
         }
 

@@ -48,24 +48,25 @@ class AutoAssessBillsCommand extends Command
         // Get bills that need assessment
         $query = LegislativeBill::query();
 
-        if (!$force) {
+        if (! $force) {
             // Only assess unassessed bills
             $query->where(function ($q) {
                 $q->where('ai_assessed', false)
-                  ->orWhere('ai_assessment_status', 'failed');
+                    ->orWhere('ai_assessment_status', 'failed');
             });
         }
 
         // Prioritize by importance
         $query->where('ai_assessment_priority', '>=', $minPriority)
-              ->orderBy('ai_assessment_priority', 'desc')
-              ->orderBy('registration_date', 'desc')
-              ->limit($limit);
+            ->orderBy('ai_assessment_priority', 'desc')
+            ->orderBy('registration_date', 'desc')
+            ->limit($limit);
 
         $bills = $query->get();
 
         if ($bills->isEmpty()) {
             $this->info('No bills to assess.');
+
             return 0;
         }
 
@@ -84,6 +85,7 @@ class AutoAssessBillsCommand extends Command
                 if ($this->shouldSkipBill($bill)) {
                     $skipped++;
                     $bar->advance();
+
                     continue;
                 }
 
@@ -122,7 +124,7 @@ class AutoAssessBillsCommand extends Command
                     'batch_assessment_attempts' => $bill->batch_assessment_attempts + 1,
                 ]);
 
-                Log::error("Failed to assess bill {$bill->id}: " . $e->getMessage());
+                Log::error("Failed to assess bill {$bill->id}: ".$e->getMessage());
                 $failed++;
             }
 
@@ -136,7 +138,7 @@ class AutoAssessBillsCommand extends Command
         $this->newLine(2);
 
         // Summary
-        $this->info("Assessment complete!");
+        $this->info('Assessment complete!');
         $this->table(
             ['Status', 'Count'],
             [

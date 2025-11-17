@@ -2,20 +2,21 @@
 
 namespace App\Services\Scrapers;
 
-use App\Models\LegislativeBill;
+use App\Models\BillChange;
 use App\Models\BillDocument;
 use App\Models\BillInitiator;
 use App\Models\BillTimeline;
-use App\Models\BillChange;
+use App\Models\LegislativeBill;
 use App\Models\ScrapingJob;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\DomCrawler\Crawler;
 
 class SenateScraper extends BaseScraper
 {
     protected $baseUrl = 'https://www.senat.ro';
+
     protected $chamber = 'senate';
+
     protected $delaySeconds = 3;
 
     /**
@@ -59,7 +60,7 @@ class SenateScraper extends BaseScraper
 
                             $cod = $codMatch[1];
                             $nr = $nrMatch[1];
-                            $billYear = (int)$yearMatch[1];
+                            $billYear = (int) $yearMatch[1];
 
                             // Filter by year if specified
                             if ($year && $billYear != $year) {
@@ -87,10 +88,11 @@ class SenateScraper extends BaseScraper
             });
 
             Log::info("Senate: Found {$count} bills");
+
             return $bills;
 
         } catch (\Exception $e) {
-            Log::error("Senate: Error scraping bill list: " . $e->getMessage());
+            Log::error('Senate: Error scraping bill list: '.$e->getMessage());
             throw $e;
         }
     }
@@ -135,7 +137,7 @@ class SenateScraper extends BaseScraper
                         // Format: B514/2025
                         if (preg_match('/([A-Z]+\d+)\/(\d{4})/', $value, $matches)) {
                             $data['bill_number'] = $matches[1];
-                            $data['year'] = (int)$matches[2];
+                            $data['year'] = (int) $matches[2];
                         }
                     } elseif (stripos($label, 'Stadiu') !== false || stripos($label, 'Status') !== false) {
                         $data['status'] = $value;
@@ -180,12 +182,12 @@ class SenateScraper extends BaseScraper
 
             // Fallbacks
             $data['year'] = $data['year'] ?? date('Y');
-            $data['bill_number'] = $data['bill_number'] ?? 'S-' . $data['internal_id'];
+            $data['bill_number'] = $data['bill_number'] ?? 'S-'.$data['internal_id'];
 
             return $data;
 
         } catch (\Exception $e) {
-            Log::error("Senate: Error scraping bill {$cod}: " . $e->getMessage());
+            Log::error("Senate: Error scraping bill {$cod}: ".$e->getMessage());
             throw $e;
         }
     }
@@ -255,7 +257,7 @@ class SenateScraper extends BaseScraper
             $href = $node->attr('href');
             $title = trim($node->text());
 
-            if (!$title || strlen($title) < 3) {
+            if (! $title || strlen($title) < 3) {
                 // Try to get title from parent or context
                 $title = trim($node->parents()->first()->text());
             }
@@ -325,7 +327,7 @@ class SenateScraper extends BaseScraper
     /**
      * Save bill data to database (similar to CDEP)
      */
-    public function saveBill($data, ScrapingJob $job = null)
+    public function saveBill($data, ?ScrapingJob $job = null)
     {
         try {
             // Find existing or create new bill
@@ -333,7 +335,7 @@ class SenateScraper extends BaseScraper
                 ->where('internal_id', $data['internal_id'])
                 ->first();
 
-            $isNew = !$bill;
+            $isNew = ! $bill;
 
             if ($bill) {
                 // Detect changes
@@ -343,7 +345,7 @@ class SenateScraper extends BaseScraper
                     $bill->last_changed_at = now();
                 }
             } else {
-                $bill = new LegislativeBill();
+                $bill = new LegislativeBill;
             }
 
             // Update bill data
@@ -393,17 +395,17 @@ class SenateScraper extends BaseScraper
                 $job->save();
             }
 
-            Log::info("Senate: " . ($isNew ? "Created" : "Updated") . " bill {$bill->internal_id}");
+            Log::info('Senate: '.($isNew ? 'Created' : 'Updated')." bill {$bill->internal_id}");
 
             return $bill;
 
         } catch (\Exception $e) {
-            Log::error("Senate: Error saving bill: " . $e->getMessage());
+            Log::error('Senate: Error saving bill: '.$e->getMessage());
 
             if ($job) {
                 $job->items_failed++;
                 $job->errors_count++;
-                $job->error_log .= "\n[" . now() . "] " . $e->getMessage();
+                $job->error_log .= "\n[".now().'] '.$e->getMessage();
                 $job->save();
             }
 
@@ -440,7 +442,7 @@ class SenateScraper extends BaseScraper
                 ->where('url', $doc['url'])
                 ->first();
 
-            if (!$existing) {
+            if (! $existing) {
                 BillDocument::create([
                     'bill_id' => $bill->id,
                     'document_type' => $doc['document_type'],
@@ -463,7 +465,7 @@ class SenateScraper extends BaseScraper
                 ->where('description', $event['description'])
                 ->first();
 
-            if (!$existing) {
+            if (! $existing) {
                 BillTimeline::create([
                     'bill_id' => $bill->id,
                     'event_date' => $event['event_date'],
@@ -484,7 +486,7 @@ class SenateScraper extends BaseScraper
         $fields = ['title', 'status', 'type', 'description'];
 
         foreach ($fields as $field) {
-            if (isset($newData[$field]) && $bill->$field !== $newData[$field]) {
+            if (isset($newData[$field]) && $newData[$field] !== $bill->$field) {
                 BillChange::create([
                     'bill_id' => $bill->id,
                     'field_name' => $field,

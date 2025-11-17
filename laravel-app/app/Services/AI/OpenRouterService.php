@@ -2,16 +2,20 @@
 
 namespace App\Services\AI;
 
+use Exception;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Exception;
 
 class OpenRouterService
 {
     protected $apiKey;
+
     protected $baseUrl = 'https://openrouter.ai/api/v1';
+
     protected $model;
+
     protected $maxTokens;
+
     protected $temperature;
 
     public function __construct()
@@ -30,18 +34,13 @@ class OpenRouterService
      */
     protected function ensureApiKeyConfigured(): void
     {
-        if (!$this->apiKey) {
+        if (! $this->apiKey) {
             throw new Exception('OpenRouter API key not configured. Please set OPENROUTER_API_KEY in .env');
         }
     }
 
     /**
      * Analyze a legislative bill and return structured assessment
-     *
-     * @param string $title
-     * @param string $description
-     * @param string|null $fullText
-     * @return array
      */
     public function analyzeBill(string $title, ?string $description = null, ?string $fullText = null): array
     {
@@ -55,29 +54,29 @@ class OpenRouterService
 
             // Make API request
             $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $this->apiKey,
+                'Authorization' => 'Bearer '.$this->apiKey,
                 'HTTP-Referer' => config('app.url'),
                 'X-Title' => config('app.name', 'Legislative Watcher'),
                 'Content-Type' => 'application/json',
-            ])->timeout(120)->post($this->baseUrl . '/chat/completions', [
+            ])->timeout(120)->post($this->baseUrl.'/chat/completions', [
                 'model' => $this->model,
                 'messages' => [
                     [
                         'role' => 'system',
-                        'content' => 'You are a legal and legislative analysis expert for Romanian laws. Analyze bills objectively and provide structured assessments in JSON format.'
+                        'content' => 'You are a legal and legislative analysis expert for Romanian laws. Analyze bills objectively and provide structured assessments in JSON format.',
                     ],
                     [
                         'role' => 'user',
-                        'content' => $prompt
-                    ]
+                        'content' => $prompt,
+                    ],
                 ],
                 'max_tokens' => $this->maxTokens,
                 'temperature' => $this->temperature,
-                'response_format' => ['type' => 'json_object']
+                'response_format' => ['type' => 'json_object'],
             ]);
 
-            if (!$response->successful()) {
-                throw new Exception('OpenRouter API request failed: ' . $response->body());
+            if (! $response->successful()) {
+                throw new Exception('OpenRouter API request failed: '.$response->body());
             }
 
             $data = $response->json();
@@ -85,7 +84,7 @@ class OpenRouterService
             // Extract the analysis from response
             $content = $data['choices'][0]['message']['content'] ?? null;
 
-            if (!$content) {
+            if (! $content) {
                 throw new Exception('No content in OpenRouter response');
             }
 
@@ -93,7 +92,7 @@ class OpenRouterService
             $analysis = json_decode($content, true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new Exception('Failed to parse OpenRouter JSON response: ' . json_last_error_msg());
+                throw new Exception('Failed to parse OpenRouter JSON response: '.json_last_error_msg());
             }
 
             // Calculate metrics
@@ -111,7 +110,7 @@ class OpenRouterService
                     'cost' => $cost,
                     'prompt_tokens' => $data['usage']['prompt_tokens'] ?? 0,
                     'completion_tokens' => $data['usage']['completion_tokens'] ?? 0,
-                ]
+                ],
             ];
 
         } catch (Exception $e) {
@@ -125,7 +124,7 @@ class OpenRouterService
                 'error' => $e->getMessage(),
                 'metadata' => [
                     'processing_time_ms' => round((microtime(true) - $startTime) * 1000),
-                ]
+                ],
             ];
         }
     }
@@ -243,8 +242,8 @@ PROMPT;
     {
         try {
             $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $this->apiKey,
-            ])->timeout(10)->get($this->baseUrl . '/models');
+                'Authorization' => 'Bearer '.$this->apiKey,
+            ])->timeout(10)->get($this->baseUrl.'/models');
 
             if ($response->successful()) {
                 return [
@@ -256,13 +255,13 @@ PROMPT;
 
             return [
                 'success' => false,
-                'message' => 'Failed to connect: HTTP ' . $response->status(),
+                'message' => 'Failed to connect: HTTP '.$response->status(),
             ];
 
         } catch (Exception $e) {
             return [
                 'success' => false,
-                'message' => 'Connection error: ' . $e->getMessage(),
+                'message' => 'Connection error: '.$e->getMessage(),
             ];
         }
     }

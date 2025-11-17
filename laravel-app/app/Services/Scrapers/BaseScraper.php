@@ -2,20 +2,28 @@
 
 namespace App\Services\Scrapers;
 
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Cache;
 
 abstract class BaseScraper
 {
     protected $baseUrl;
+
     protected $chamber;
+
     protected $userAgent = 'Mozilla/5.0 (compatible; RomanianLegislativeWatcher/1.0; +https://legislative-watcher.ro)';
+
     protected $delaySeconds = 3; // Default rate limiting
+
     protected $timeout = 30; // Request timeout in seconds
+
     protected $maxRetries = 3;
+
     protected $proxyEnabled = false;
+
     protected $proxies = [];
+
     protected $currentProxyIndex = 0;
 
     public function __construct()
@@ -31,7 +39,7 @@ abstract class BaseScraper
         if ($this->proxyEnabled && $proxyConfig = config('scraper.proxy')) {
             // Support multiple proxies separated by comma
             $this->proxies = array_map('trim', explode(',', $proxyConfig));
-            Log::info('Proxy enabled with ' . count($this->proxies) . ' proxy(ies)');
+            Log::info('Proxy enabled with '.count($this->proxies).' proxy(ies)');
         }
     }
 
@@ -40,11 +48,11 @@ abstract class BaseScraper
      */
     protected function getCurrentProxy()
     {
-        if (!$this->proxyEnabled || empty($this->proxies)) {
+        if (! $this->proxyEnabled || empty($this->proxies)) {
             return null;
         }
 
-        if (!config('scraper.proxy_rotation', true)) {
+        if (! config('scraper.proxy_rotation', true)) {
             // No rotation, always use first proxy
             return $this->proxies[0];
         }
@@ -82,7 +90,7 @@ abstract class BaseScraper
                     'Sec-Fetch-Site' => 'none',
                     'Sec-Fetch-User' => '?1',
                 ])
-                ->timeout($this->timeout);
+                    ->timeout($this->timeout);
 
                 // Add proxy if enabled
                 $proxy = $this->getCurrentProxy();
@@ -98,6 +106,7 @@ abstract class BaseScraper
 
                 if ($response->successful()) {
                     Log::debug("Request successful: {$url}");
+
                     return $response->body();
                 }
 
@@ -105,10 +114,11 @@ abstract class BaseScraper
                 if ($response->status() === 403) {
                     Log::warning("Access forbidden (403) on {$url} - anti-bot protection detected");
                     if ($proxy) {
-                        Log::info("Trying next proxy...");
+                        Log::info('Trying next proxy...');
                     }
                     $attempt++;
                     sleep(5);
+
                     continue;
                 }
 
@@ -116,6 +126,7 @@ abstract class BaseScraper
                     Log::warning("Rate limited (503) on {$url}, waiting...");
                     sleep(10); // Wait longer on rate limit
                     $attempt++;
+
                     continue;
                 }
 
@@ -126,21 +137,20 @@ abstract class BaseScraper
 
                 // Other errors
                 throw new \Exception("HTTP {$response->status()} error for {$url}");
-
             } catch (\Exception $e) {
                 $lastException = $e;
                 $attempt++;
 
                 if ($attempt < $this->maxRetries) {
                     $waitTime = pow(2, $attempt); // Exponential backoff
-                    Log::warning("Request failed, retrying in {$waitTime}s... ({$attempt}/{$this->maxRetries}): " . $e->getMessage());
+                    Log::warning("Request failed, retrying in {$waitTime}s... ({$attempt}/{$this->maxRetries}): ".$e->getMessage());
                     sleep($waitTime);
                 }
             }
         }
 
         // All retries failed
-        Log::error("All retries failed for {$url}: " . $lastException->getMessage());
+        Log::error("All retries failed for {$url}: ".$lastException->getMessage());
         throw $lastException;
     }
 
@@ -175,10 +185,10 @@ abstract class BaseScraper
 
         // Handle paths starting with /
         if (strpos($path, '/') === 0) {
-            return $this->baseUrl . $path;
+            return $this->baseUrl.$path;
         }
 
-        return $this->baseUrl . '/' . $path;
+        return $this->baseUrl.'/'.$path;
     }
 
     /**
@@ -186,7 +196,7 @@ abstract class BaseScraper
      */
     protected function parseDate($dateString)
     {
-        if (!$dateString) {
+        if (! $dateString) {
             return null;
         }
 
@@ -219,6 +229,7 @@ abstract class BaseScraper
         }
 
         Log::warning("Could not parse date: {$dateString}");
+
         return null;
     }
 
@@ -307,7 +318,7 @@ abstract class BaseScraper
             $httpClient = Http::withHeaders([
                 'User-Agent' => $this->userAgent,
             ])
-            ->timeout(60); // Longer timeout for file downloads
+                ->timeout(60); // Longer timeout for file downloads
 
             // Add proxy if enabled
             $proxy = $this->getCurrentProxy();
@@ -320,7 +331,7 @@ abstract class BaseScraper
 
             $response = $httpClient->get($url);
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 throw new \Exception("Failed to download: HTTP {$response->status()}");
             }
 
@@ -339,7 +350,8 @@ abstract class BaseScraper
             ];
 
         } catch (\Exception $e) {
-            Log::error("Error downloading document {$url}: " . $e->getMessage());
+            Log::error("Error downloading document {$url}: ".$e->getMessage());
+
             return null;
         }
     }
@@ -392,6 +404,8 @@ abstract class BaseScraper
      * Abstract methods to be implemented by child classes
      */
     abstract public function scrapeBillList($chamber, $year = null, $limit = null);
+
     abstract public function scrapeBillDetail($id, $chamber);
+
     abstract public function saveBill($data, $job = null);
 }
