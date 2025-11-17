@@ -78,8 +78,16 @@ class DashboardController extends Controller
             ->first();
 
         // Bills registered per month (last 6 months)
+        // Use database-agnostic date formatting
+        $dbDriver = DB::connection()->getDriverName();
+        if ($dbDriver === 'sqlite') {
+            $dateFormat = "strftime('%Y-%m', registration_date) as month";
+        } else {
+            $dateFormat = "DATE_FORMAT(registration_date, '%Y-%m') as month";
+        }
+
         $billsPerMonth = LegislativeBill::select(
-                DB::raw('DATE_FORMAT(registration_date, "%Y-%m") as month'),
+                DB::raw($dateFormat),
                 DB::raw('count(*) as total')
             )
             ->where('registration_date', '>', now()->subMonths(6))
