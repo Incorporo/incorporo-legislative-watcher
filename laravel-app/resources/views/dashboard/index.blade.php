@@ -5,94 +5,112 @@
 @section('content')
 <div class="space-y-8">
     <!-- Hero Section -->
-    <div class="gradient-bg rounded-2xl p-8 text-white shadow-xl">
-        <div class="flex flex-col md:flex-row items-start md:items-center justify-between">
-            <div>
-                <h1 class="text-3xl font-bold mb-2">Monitorizare Legislativă România</h1>
-                <p class="text-indigo-100 text-lg">Transparență și analiză automată a procesului legislativ</p>
-            </div>
-            <div class="mt-4 md:mt-0 flex items-center space-x-3">
-                <div class="text-center bg-white/20 rounded-lg px-4 py-2 backdrop-blur">
-                    <div class="text-2xl font-bold">{{ $stats['total_bills'] }}</div>
-                    <div class="text-xs text-indigo-100">Proiecte</div>
+    <div class="gradient-bg rounded-2xl p-8 md:p-10 text-white shadow-2xl relative">
+        <div class="relative z-10">
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between">
+                <div class="max-w-2xl">
+                    <div class="inline-flex items-center px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 mb-4">
+                        <span class="relative flex h-2 w-2 mr-2">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                        </span>
+                        <span class="text-xs font-semibold text-white/90">Sistem Activ</span>
+                    </div>
+                    <h1 class="text-4xl md:text-5xl font-bold mb-3 leading-tight">
+                        Monitorizare Legislativă
+                        <span class="block text-indigo-200">România</span>
+                    </h1>
+                    <p class="text-indigo-100 text-lg font-medium leading-relaxed">
+                        Transparență și analiză automată a procesului legislativ în timp real
+                    </p>
                 </div>
-                <div class="text-center bg-white/20 rounded-lg px-4 py-2 backdrop-blur">
-                    <div class="text-2xl font-bold">{{ $stats['active_bills'] }}</div>
-                    <div class="text-xs text-indigo-100">Active</div>
+                <div class="mt-6 md:mt-0 flex items-center space-x-3">
+                    <div class="text-center bg-white/15 rounded-xl px-5 py-3 backdrop-blur-md border border-white/20 shadow-lg">
+                        <div class="text-3xl font-bold">{{ $stats['total_bills'] }}</div>
+                        <div class="text-xs text-indigo-100 font-medium mt-1">Proiecte</div>
+                    </div>
+                    <div class="text-center bg-white/15 rounded-xl px-5 py-3 backdrop-blur-md border border-white/20 shadow-lg">
+                        <div class="text-3xl font-bold">{{ $stats['active_bills'] }}</div>
+                        <div class="text-xs text-indigo-100 font-medium mt-1">Active</div>
+                    </div>
+                    @if($lastScrapeJob)
+                    <div class="hidden lg:block text-center bg-white/15 rounded-xl px-5 py-3 backdrop-blur-md border border-white/20 shadow-lg">
+                        <div class="text-xs text-indigo-100 font-medium mb-1">Actualizat</div>
+                        <div class="text-sm font-bold">{{ $lastScrapeJob->completed_at->diffForHumans() }}</div>
+                    </div>
+                    @endif
                 </div>
-                @if($lastScrapeJob)
-                <div class="text-center bg-white/20 rounded-lg px-4 py-2 backdrop-blur">
-                    <div class="text-xs text-indigo-100">Ultima actualizare</div>
-                    <div class="text-sm font-semibold">{{ $lastScrapeJob->completed_at->diffForHumans() }}</div>
-                </div>
-                @endif
             </div>
         </div>
     </div>
 
     <!-- Stats Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
         <!-- Total Bills -->
-        <div class="bg-white rounded-xl shadow-sm p-6 card-hover border border-gray-100">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm font-medium text-gray-600">Total Proiecte</p>
-                    <p class="text-3xl font-bold text-gray-900 mt-2">{{ $stats['total_bills'] }}</p>
-                    <p class="text-xs text-gray-500 mt-1">Toate camerele</p>
-                </div>
-                <div class="h-12 w-12 bg-indigo-100 rounded-lg flex items-center justify-center">
-                    <svg class="h-6 w-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="stat-card group">
+            <div class="flex items-center justify-between mb-4">
+                <div class="h-12 w-12 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/30 group-hover:shadow-indigo-500/50 transition-shadow">
+                    <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                 </div>
+                <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Total</span>
+            </div>
+            <div>
+                <p class="text-3xl font-bold text-gray-900 mb-1">{{ $stats['total_bills'] }}</p>
+                <p class="text-sm font-medium text-gray-600">Proiecte de Lege</p>
+                <p class="text-xs text-gray-500 mt-2">Toate camerele</p>
             </div>
         </div>
 
         <!-- Active Bills -->
-        <div class="bg-white rounded-xl shadow-sm p-6 card-hover border border-gray-100">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm font-medium text-gray-600">În Desfășurare</p>
-                    <p class="text-3xl font-bold text-blue-600 mt-2">{{ $stats['active_bills'] }}</p>
-                    <p class="text-xs text-gray-500 mt-1">Comisii + Dezbateri</p>
-                </div>
-                <div class="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="stat-card group">
+            <div class="flex items-center justify-between mb-4">
+                <div class="h-12 w-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30 group-hover:shadow-blue-500/50 transition-shadow">
+                    <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                     </svg>
                 </div>
+                <span class="text-xs font-semibold text-blue-600 uppercase tracking-wider bg-blue-50 px-2 py-1 rounded">Activ</span>
+            </div>
+            <div>
+                <p class="text-3xl font-bold text-blue-600 mb-1">{{ $stats['active_bills'] }}</p>
+                <p class="text-sm font-medium text-gray-600">În Desfășurare</p>
+                <p class="text-xs text-gray-500 mt-2">Comisii + Dezbateri</p>
             </div>
         </div>
 
         <!-- Urgent Bills -->
-        <div class="bg-white rounded-xl shadow-sm p-6 card-hover border border-gray-100">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm font-medium text-gray-600">Urgență</p>
-                    <p class="text-3xl font-bold text-orange-600 mt-2">{{ $stats['urgent_bills'] }}</p>
-                    <p class="text-xs text-gray-500 mt-1">Procedură urgentă</p>
-                </div>
-                <div class="h-12 w-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                    <svg class="h-6 w-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="stat-card group">
+            <div class="flex items-center justify-between mb-4">
+                <div class="h-12 w-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg shadow-orange-500/30 group-hover:shadow-orange-500/50 transition-shadow">
+                    <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                 </div>
+                <span class="text-xs font-semibold text-orange-600 uppercase tracking-wider bg-orange-50 px-2 py-1 rounded">Urgent</span>
+            </div>
+            <div>
+                <p class="text-3xl font-bold text-orange-600 mb-1">{{ $stats['urgent_bills'] }}</p>
+                <p class="text-sm font-medium text-gray-600">Procedură Urgentă</p>
+                <p class="text-xs text-gray-500 mt-2">Necesită atenție</p>
             </div>
         </div>
 
         <!-- High Risk Bills -->
-        <div class="bg-white rounded-xl shadow-sm p-6 card-hover border border-gray-100">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm font-medium text-gray-600">Risc Ridicat</p>
-                    <p class="text-3xl font-bold text-red-600 mt-2">{{ $stats['high_risk_bills'] }}</p>
-                    <p class="text-xs text-gray-500 mt-1">Atenționare AI</p>
-                </div>
-                <div class="h-12 w-12 bg-red-100 rounded-lg flex items-center justify-center">
-                    <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="stat-card group">
+            <div class="flex items-center justify-between mb-4">
+                <div class="h-12 w-12 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center shadow-lg shadow-red-500/30 group-hover:shadow-red-500/50 transition-shadow">
+                    <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                     </svg>
                 </div>
+                <span class="text-xs font-semibold text-red-600 uppercase tracking-wider bg-red-50 px-2 py-1 rounded">Risc</span>
+            </div>
+            <div>
+                <p class="text-3xl font-bold text-red-600 mb-1">{{ $stats['high_risk_bills'] }}</p>
+                <p class="text-sm font-medium text-gray-600">Risc Ridicat</p>
+                <p class="text-xs text-gray-500 mt-2">Analiză AI</p>
             </div>
         </div>
     </div>
