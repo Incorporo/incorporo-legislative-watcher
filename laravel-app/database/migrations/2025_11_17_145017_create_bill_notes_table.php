@@ -13,7 +13,14 @@ return new class extends Migration
     {
         Schema::create('bill_notes', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('bill_id')->constrained('legislative_bills')->onDelete('cascade');
+            $table->text('content');
+            $table->boolean('is_private')->default(true);
             $table->timestamps();
+
+            $table->index(['user_id', 'bill_id']);
+            $table->index('created_at');
         });
     }
 

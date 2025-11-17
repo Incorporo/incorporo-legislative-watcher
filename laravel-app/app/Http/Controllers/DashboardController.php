@@ -6,7 +6,9 @@ use App\Models\LegislativeBill;
 use App\Models\Legislator;
 use App\Models\BillRisk;
 use App\Models\ScrapingJob;
+use App\Models\DashboardPreference;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
@@ -125,5 +127,80 @@ class DashboardController extends Controller
             ],
             'last_updated' => now()->toISOString(),
         ]);
+    }
+
+    /**
+     * Show dashboard customization page
+     */
+    public function customize()
+    {
+        $preferences = Auth::user()->dashboardPreferences;
+
+        // If no preferences exist, create default ones
+        if (!$preferences) {
+            $preferences = Auth::user()->dashboardPreferences()->create([
+                'widget_layout' => DashboardPreference::getDefaultLayout(),
+                'visible_widgets' => DashboardPreference::getDefaultVisibleWidgets(),
+                'theme' => 'light',
+            ]);
+        }
+
+        return view('dashboard.customize', compact('preferences'));
+    }
+
+    /**
+     * Update dashboard preferences
+     */
+    public function updatePreferences(Request $request)
+    {
+        $validated = $request->validate([
+            'widget_layout' => 'sometimes|array',
+            'visible_widgets' => 'sometimes|array',
+            'theme' => 'sometimes|in:light,dark,auto',
+            'chart_preferences' => 'sometimes|array',
+        ]);
+
+        $preferences = Auth::user()->dashboardPreferences;
+
+        if (!$preferences) {
+            $preferences = Auth::user()->dashboardPreferences()->create($validated);
+        } else {
+            $preferences->update($validated);
+        }
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => 'Dashboard preferences updated',
+                'preferences' => $preferences->fresh(),
+            ]);
+        }
+
+        return redirect()->route('dashboard.index')->with('success', 'Dashboard preferences updated');
+    }
+
+    /**
+     * Reset dashboard to default layout
+     */
+    public function resetPreferences()
+    {
+        $preferences = Auth::user()->dashboardPreferences;
+
+        if ($preferences) {
+            $preferences->update([
+                'widget_layout' => DashboardPreference::getDefaultLayout(),
+                'visible_widgets' => DashboardPreference::getDefaultVisibleWidgets(),
+                'theme' => 'light',
+                'chart_preferences' => null,
+            ]);
+        }
+
+        if (request()->expectsJson()) {
+            return response()->json([
+                'message' => 'Dashboard reset to default layout',
+                'preferences' => $preferences->fresh(),
+            ]);
+        }
+
+        return redirect()->route('dashboard.index')->with('success', 'Dashboard reset to default layout');
     }
 }

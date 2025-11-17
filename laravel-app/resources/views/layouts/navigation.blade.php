@@ -12,8 +12,23 @@
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                    <x-nav-link :href="route('dashboard.index')" :active="request()->routeIs('dashboard.*')">
                         {{ __('Dashboard') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('bills.index')" :active="request()->routeIs('bills.*')">
+                        {{ __('Bills') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('watchlist.index')" :active="request()->routeIs('watchlist.*')">
+                        {{ __('My Watchlist') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('tags.index')" :active="request()->routeIs('tags.*')">
+                        {{ __('Tags') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('notes.index')" :active="request()->routeIs('notes.*')">
+                        {{ __('Notes') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('searches.index')" :active="request()->routeIs('searches.*')">
+                        {{ __('Saved Searches') }}
                     </x-nav-link>
                 </div>
             </div>
@@ -36,6 +51,10 @@
                     <x-slot name="content">
                         <x-dropdown-link :href="route('profile.edit')">
                             {{ __('Profile') }}
+                        </x-dropdown-link>
+
+                        <x-dropdown-link :href="route('dashboard.customize')">
+                            {{ __('Customize Dashboard') }}
                         </x-dropdown-link>
 
                         <!-- Authentication -->
@@ -67,8 +86,23 @@
     <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+            <x-responsive-nav-link :href="route('dashboard.index')" :active="request()->routeIs('dashboard.*')">
                 {{ __('Dashboard') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('bills.index')" :active="request()->routeIs('bills.*')">
+                {{ __('Bills') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('watchlist.index')" :active="request()->routeIs('watchlist.*')">
+                {{ __('My Watchlist') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('tags.index')" :active="request()->routeIs('tags.*')">
+                {{ __('Tags') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('notes.index')" :active="request()->routeIs('notes.*')">
+                {{ __('Notes') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('searches.index')" :active="request()->routeIs('searches.*')">
+                {{ __('Saved Searches') }}
             </x-responsive-nav-link>
         </div>
 
@@ -82,6 +116,10 @@
             <div class="mt-3 space-y-1">
                 <x-responsive-nav-link :href="route('profile.edit')">
                     {{ __('Profile') }}
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link :href="route('dashboard.customize')">
+                    {{ __('Customize Dashboard') }}
                 </x-responsive-nav-link>
 
                 <!-- Authentication -->
