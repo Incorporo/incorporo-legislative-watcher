@@ -32,7 +32,6 @@ return new class extends Migration
             // Indexes
             $table->index(['bill_id', 'type']);
             $table->index(['legislator_id', 'type']);
-            $table->index('type');
         });
     }
 

@@ -59,7 +59,6 @@ return new class extends Migration
             $table->index(['chamber', 'year']);
             $table->index(['status', 'urgency_status']);
             $table->index('last_scraped_at');
-            $table->index('analyzed');
         });
     }
 

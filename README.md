@@ -2,6 +2,80 @@
 
 An AI-powered legislative monitoring system for the Romanian Parliament (Chamber of Deputies and Senate).
 
+## 🚀 Quick Start
+
+**New to this project? Get up and running in 5 minutes:**
+
+```bash
+# Clone the repository
+git clone https://github.com/Incorporo/incorporo-legislative-watcher.git
+cd incorporo-legislative-watcher
+
+# Run the automated setup script
+./setup.sh
+
+# Start the development server
+cd laravel-app
+php artisan serve
+```
+
+Then visit **http://localhost:8000** in your browser!
+
+### Requirements
+
+- **PHP 8.1+** with extensions: `pdo`, `sqlite3`, `mbstring`, `xml`, `curl`
+- **Composer** (https://getcomposer.org)
+- **Node.js 16+** and NPM (optional, for frontend assets)
+- **Git**
+
+### Manual Setup (Alternative)
+
+If you prefer manual setup or the script doesn't work:
+
+```bash
+cd laravel-app
+
+# Install PHP dependencies
+composer install
+
+# Install JavaScript dependencies (optional)
+npm install
+
+# Setup environment
+cp .env.example .env
+php artisan key:generate
+
+# Create database
+touch database/database.sqlite
+
+# Run migrations
+php artisan migrate
+
+# Start server
+php artisan serve
+```
+
+### Testing the Scraper
+
+```bash
+# Scrape 10 bills from both chambers (test mode)
+php artisan scrape:bills --chamber=all --limit=10
+
+# View the scraped data
+php artisan tinker
+>>> \App\Models\LegislativeBill::count()
+>>> \App\Models\LegislativeBill::latest()->first()
+```
+
+### Running Tests
+
+```bash
+cd laravel-app
+php artisan test
+```
+
+---
+
 ## Project Overview
 
 This project aims to automatically scrape, analyze, and monitor legislative projects from:
