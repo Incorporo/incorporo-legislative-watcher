@@ -3,42 +3,42 @@
 @section('title', 'Dashboard')
 
 @section('content')
-<div class="space-y-8">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
     <!-- Hero Section -->
-    <div class="gradient-bg rounded-3xl p-10 md:p-12 text-white shadow-2xl relative overflow-hidden">
+    <div class="bg-apple-black-900 border border-apple-black-800 rounded-3xl p-10 md:p-12 relative overflow-hidden">
         <div class="relative z-10">
             <div class="flex flex-col md:flex-row items-start md:items-center justify-between">
                 <div class="max-w-2xl">
-                    <div class="inline-flex items-center px-4 py-2 rounded-full bg-white/20 backdrop-blur-md border border-white/30 mb-5 shadow-lg">
-                        <span class="relative flex h-2.5 w-2.5 mr-2.5">
-                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-300 opacity-75"></span>
-                            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400"></span>
+                    <div class="inline-flex items-center px-4 py-2 rounded-full bg-white text-black mb-5">
+                        <span class="relative flex h-2 w-2 mr-2.5">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-black opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-black"></span>
                         </span>
-                        <span class="text-sm font-bold text-white/95 uppercase tracking-wide">Sistem Operațional</span>
+                        <span class="text-xs font-bold uppercase tracking-wider">Sistem Operațional</span>
                     </div>
-                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 leading-tight tracking-tight">
+                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 leading-tight tracking-tight text-white">
                         Monitorizare Legislativă
                     </h1>
-                    <p class="text-xl md:text-2xl font-semibold text-cyan-100 mb-3">
+                    <p class="text-xl md:text-2xl font-semibold text-apple-black-300 mb-3">
                         Parlamentul României
                     </p>
-                    <p class="text-white/90 text-base md:text-lg leading-relaxed max-w-xl">
+                    <p class="text-apple-black-400 text-base md:text-lg leading-relaxed max-w-xl">
                         Sistem profesional de monitorizare în timp real a procesului legislativ cu analiză automată și alertare inteligentă
                     </p>
                 </div>
                 <div class="mt-8 md:mt-0 grid grid-cols-2 gap-4">
-                    <div class="text-center bg-white/15 rounded-2xl px-6 py-4 backdrop-blur-md border border-white/25 shadow-xl">
-                        <div class="text-4xl font-bold mb-1">{{ $stats['total_bills'] }}</div>
-                        <div class="text-xs text-cyan-100 font-semibold uppercase tracking-wider">Proiecte</div>
+                    <div class="text-center bg-apple-black-800 rounded-2xl px-6 py-4 border border-apple-black-700">
+                        <div class="text-4xl font-bold mb-1 text-white">{{ $stats['total_bills'] }}</div>
+                        <div class="text-xs text-apple-black-400 font-semibold uppercase tracking-wider">Proiecte</div>
                     </div>
-                    <div class="text-center bg-white/15 rounded-2xl px-6 py-4 backdrop-blur-md border border-white/25 shadow-xl">
-                        <div class="text-4xl font-bold mb-1">{{ $stats['active_bills'] }}</div>
-                        <div class="text-xs text-cyan-100 font-semibold uppercase tracking-wider">Active</div>
+                    <div class="text-center bg-apple-black-800 rounded-2xl px-6 py-4 border border-apple-black-700">
+                        <div class="text-4xl font-bold mb-1 text-white">{{ $stats['active_bills'] }}</div>
+                        <div class="text-xs text-apple-black-400 font-semibold uppercase tracking-wider">Active</div>
                     </div>
                     @if($lastScrapeJob)
-                    <div class="col-span-2 text-center bg-white/15 rounded-2xl px-6 py-3 backdrop-blur-md border border-white/25 shadow-xl">
-                        <div class="text-xs text-cyan-100 font-semibold uppercase tracking-wider mb-1">Actualizat</div>
-                        <div class="text-base font-bold font-mono">{{ $lastScrapeJob->completed_at->format('H:i') }} • {{ $lastScrapeJob->completed_at->format('d.m.Y') }}</div>
+                    <div class="col-span-2 text-center bg-apple-black-800 rounded-2xl px-6 py-3 border border-apple-black-700">
+                        <div class="text-xs text-apple-black-400 font-semibold uppercase tracking-wider mb-1">Actualizat</div>
+                        <div class="text-base font-bold font-mono text-white">{{ $lastScrapeJob->completed_at->format('H:i') }} • {{ $lastScrapeJob->completed_at->format('d.m.Y') }}</div>
                     </div>
                     @endif
                 </div>
@@ -101,42 +101,42 @@
     <!-- Activity Timeline -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- High Risk Bills -->
-        <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <div class="border-b border-gray-200 bg-gray-50 px-6 py-4">
-                <h3 class="text-lg font-semibold text-gray-900 flex items-center">
-                    <svg class="h-5 w-5 text-red-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="lg:col-span-2 bg-apple-black-900 rounded-2xl border border-apple-black-800 overflow-hidden">
+            <div class="border-b border-apple-black-800 px-6 py-4">
+                <h3 class="text-lg font-semibold text-white flex items-center">
+                    <svg class="h-5 w-5 text-white mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                     </svg>
                     Proiecte cu Risc Ridicat
                 </h3>
             </div>
-            <div class="divide-y divide-gray-200">
+            <div class="divide-y divide-apple-black-800">
                 @forelse($highRiskBills as $bill)
-                <a href="{{ route('bills.show', $bill->id) }}" class="block hover:bg-gray-50 transition-colors p-6">
+                <a href="{{ route('bills.show', $bill->id) }}" class="block hover:bg-apple-black-800 transition-colors p-6">
                     <div class="flex items-start justify-between">
                         <div class="flex-1">
                             <div class="flex items-center space-x-2 mb-2">
-                                <span class="text-sm font-medium text-gray-900">{{ $bill->bill_number }}/{{ $bill->year }}</span>
+                                <span class="text-sm font-medium text-white">{{ $bill->bill_number }}/{{ $bill->year }}</span>
                                 @if($bill->urgency_status)
-                                <span class="status-badge bg-orange-100 text-orange-800 ring-orange-600/20">Urgență</span>
+                                <span class="inline-flex items-center px-2.5 py-1 text-xs font-semibold rounded-xl bg-apple-black-700 text-white ring-1 ring-inset ring-apple-black-600">Urgență</span>
                                 @endif
                                 @foreach($bill->risks->take(1) as $risk)
-                                <span class="status-badge badge-{{ $risk->risk_level }}">{{ ucfirst($risk->risk_level) }}</span>
+                                <x-risk-badge :level="$risk->risk_level" />
                                 @endforeach
                             </div>
-                            <h4 class="text-sm font-medium text-gray-900 mb-1">{{ Str::limit($bill->title, 100) }}</h4>
+                            <h4 class="text-sm font-medium text-white mb-1">{{ Str::limit($bill->title, 100) }}</h4>
                             @if($bill->risks->isNotEmpty())
-                            <p class="text-xs text-gray-600">{{ Str::limit($bill->risks->first()->description, 150) }}</p>
+                            <p class="text-xs text-apple-black-400">{{ Str::limit($bill->risks->first()->description, 150) }}</p>
                             @endif
                         </div>
-                        <svg class="h-5 w-5 text-gray-400 flex-shrink-0 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="h-5 w-5 text-apple-black-500 flex-shrink-0 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                         </svg>
                     </div>
                 </a>
                 @empty
-                <div class="p-6 text-center text-gray-500">
-                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="p-6 text-center text-apple-black-500">
+                    <svg class="mx-auto h-12 w-12 text-apple-black-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <p class="mt-2">Niciun proiect cu risc ridicat detectat</p>
@@ -144,8 +144,8 @@
                 @endforelse
             </div>
             @if($highRiskBills->isNotEmpty())
-            <div class="bg-gray-50 px-6 py-3 text-center">
-                <a href="{{ route('risks.index', ['level' => 'high']) }}" class="text-sm font-medium text-indigo-600 hover:text-indigo-500">
+            <div class="bg-apple-black-800 px-6 py-3 text-center border-t border-apple-black-700">
+                <a href="{{ route('risks.index', ['level' => 'high']) }}" class="text-sm font-medium text-white hover:text-apple-black-200">
                     Vezi toate proiectele cu risc ridicat →
                 </a>
             </div>
@@ -153,36 +153,36 @@
         </div>
 
         <!-- Recent Activity -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <div class="border-b border-gray-200 bg-gray-50 px-6 py-4">
-                <h3 class="text-lg font-semibold text-gray-900">Activitate Recentă</h3>
+        <div class="bg-apple-black-900 rounded-2xl border border-apple-black-800 overflow-hidden">
+            <div class="border-b border-apple-black-800 px-6 py-4">
+                <h3 class="text-lg font-semibold text-white">Activitate Recentă</h3>
             </div>
-            <div class="divide-y divide-gray-200 max-h-96 overflow-y-auto">
+            <div class="divide-y divide-apple-black-800 max-h-96 overflow-y-auto">
                 @forelse($recentBills->take(8) as $bill)
-                <a href="{{ route('bills.show', $bill->id) }}" class="block hover:bg-gray-50 transition-colors p-4">
+                <a href="{{ route('bills.show', $bill->id) }}" class="block hover:bg-apple-black-800 transition-colors p-4">
                     <div class="flex items-start">
                         <div class="flex-shrink-0">
-                            <div class="h-8 w-8 rounded-full bg-{{ $bill->chamber === 'cdep' ? 'blue' : 'purple' }}-100 flex items-center justify-center">
-                                <span class="text-xs font-medium text-{{ $bill->chamber === 'cdep' ? 'blue' : 'purple' }}-600">
+                            <div class="h-8 w-8 rounded-full bg-apple-black-800 border border-apple-black-700 flex items-center justify-center">
+                                <span class="text-xs font-medium text-white">
                                     {{ strtoupper(substr($bill->chamber, 0, 1)) }}
                                 </span>
                             </div>
                         </div>
                         <div class="ml-3 flex-1 min-w-0">
-                            <p class="text-sm font-medium text-gray-900 truncate">{{ $bill->bill_number }}/{{ $bill->year }}</p>
-                            <p class="text-xs text-gray-600 truncate">{{ Str::limit($bill->title, 60) }}</p>
-                            <p class="text-xs text-gray-500 mt-1">{{ $bill->registration_date?->diffForHumans() }}</p>
+                            <p class="text-sm font-medium text-white truncate">{{ $bill->bill_number }}/{{ $bill->year }}</p>
+                            <p class="text-xs text-apple-black-400 truncate">{{ Str::limit($bill->title, 60) }}</p>
+                            <p class="text-xs text-apple-black-500 mt-1">{{ $bill->registration_date?->diffForHumans() }}</p>
                         </div>
                     </div>
                 </a>
                 @empty
-                <div class="p-4 text-center text-gray-500 text-sm">
+                <div class="p-4 text-center text-apple-black-500 text-sm">
                     Nicio activitate recentă
                 </div>
                 @endforelse
             </div>
-            <div class="bg-gray-50 px-6 py-3 text-center">
-                <a href="{{ route('bills.index') }}" class="text-sm font-medium text-indigo-600 hover:text-indigo-500">
+            <div class="bg-apple-black-800 px-6 py-3 text-center border-t border-apple-black-700">
+                <a href="{{ route('bills.index') }}" class="text-sm font-medium text-white hover:text-apple-black-200">
                     Vezi toate proiectele →
                 </a>
             </div>
@@ -201,20 +201,20 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Corporate color palette
+    // Monochromatic Apple-inspired palette
     const colors = {
-        primary: 'rgb(2, 132, 199)',      // blue-600
-        primaryLight: 'rgba(2, 132, 199, 0.1)',
-        secondary: 'rgb(6, 182, 212)',    // cyan-500
-        slate: 'rgb(71, 85, 105)',        // slate-600
-        amber: 'rgb(245, 158, 11)',       // amber-500
-        emerald: 'rgb(16, 185, 129)',     // emerald-500
-        red: 'rgb(239, 68, 68)',          // red-500
+        primary: 'rgb(255, 255, 255)',      // white
+        primaryLight: 'rgba(255, 255, 255, 0.1)',
+        secondary: 'rgb(200, 200, 200)',    // light gray
+        slate: 'rgb(120, 120, 120)',        // mid gray
+        amber: 'rgb(160, 160, 160)',        // gray
+        emerald: 'rgb(180, 180, 180)',      // light-mid gray
+        red: 'rgb(140, 140, 140)',          // darker gray
     };
 
     // Global Chart.js defaults
-    Chart.defaults.font.family = "'IBM Plex Sans', sans-serif";
-    Chart.defaults.color = '#475569';
+    Chart.defaults.font.family = "'Inter', -apple-system, BlinkMacSystemFont, sans-serif";
+    Chart.defaults.color = '#a0a0a0';
 
     // Bills by Status Chart
     const statusCtx = document.getElementById('statusChart').getContext('2d');
@@ -228,7 +228,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 backgroundColor: colors.primary,
                 borderColor: colors.primary,
                 borderWidth: 0,
-                borderRadius: 8,
+                borderRadius: 12,
                 barThickness: 40,
             }]
         },
@@ -238,22 +238,24 @@ document.addEventListener('DOMContentLoaded', function() {
             plugins: {
                 legend: { display: false },
                 tooltip: {
-                    backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                    backgroundColor: 'rgba(26, 26, 26, 0.95)',
                     titleFont: { size: 14, weight: 'bold' },
                     bodyFont: { size: 13 },
                     padding: 12,
-                    cornerRadius: 8,
+                    cornerRadius: 12,
+                    borderColor: 'rgba(74, 74, 74, 0.5)',
+                    borderWidth: 1,
                 }
             },
             scales: {
                 y: {
                     beginAtZero: true,
-                    grid: { color: 'rgba(226, 232, 240, 0.5)', drawBorder: false },
-                    ticks: { font: { size: 12, weight: '500' } }
+                    grid: { color: 'rgba(74, 74, 74, 0.3)', drawBorder: false },
+                    ticks: { font: { size: 12, weight: '500' }, color: '#a0a0a0' }
                 },
                 x: {
                     grid: { display: false },
-                    ticks: { font: { size: 12, weight: '500' } }
+                    ticks: { font: { size: 12, weight: '500' }, color: '#a0a0a0' }
                 }
             }
         }
@@ -269,7 +271,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 data: [{{ $billsByChamber['cdep'] ?? 0 }}, {{ $billsByChamber['senate'] ?? 0 }}],
                 backgroundColor: [colors.primary, colors.secondary],
                 borderWidth: 4,
-                borderColor: '#ffffff',
+                borderColor: '#000000',
                 hoverOffset: 8,
             }]
         },
@@ -284,14 +286,17 @@ document.addEventListener('DOMContentLoaded', function() {
                         font: { size: 13, weight: '600' },
                         usePointStyle: true,
                         pointStyle: 'circle',
+                        color: '#a0a0a0',
                     }
                 },
                 tooltip: {
-                    backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                    backgroundColor: 'rgba(26, 26, 26, 0.95)',
                     titleFont: { size: 14, weight: 'bold' },
                     bodyFont: { size: 13 },
                     padding: 12,
-                    cornerRadius: 8,
+                    cornerRadius: 12,
+                    borderColor: 'rgba(74, 74, 74, 0.5)',
+                    borderWidth: 1,
                 }
             },
             cutout: '65%',
@@ -325,22 +330,24 @@ document.addEventListener('DOMContentLoaded', function() {
             plugins: {
                 legend: { display: false },
                 tooltip: {
-                    backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                    backgroundColor: 'rgba(26, 26, 26, 0.95)',
                     titleFont: { size: 14, weight: 'bold' },
                     bodyFont: { size: 13 },
                     padding: 12,
-                    cornerRadius: 8,
+                    cornerRadius: 12,
+                    borderColor: 'rgba(74, 74, 74, 0.5)',
+                    borderWidth: 1,
                 }
             },
             scales: {
                 y: {
                     beginAtZero: true,
-                    grid: { color: 'rgba(226, 232, 240, 0.5)', drawBorder: false },
-                    ticks: { font: { size: 12, weight: '500' } }
+                    grid: { color: 'rgba(74, 74, 74, 0.3)', drawBorder: false },
+                    ticks: { font: { size: 12, weight: '500' }, color: '#a0a0a0' }
                 },
                 x: {
                     grid: { display: false },
-                    ticks: { font: { size: 12, weight: '500' } }
+                    ticks: { font: { size: 12, weight: '500' }, color: '#a0a0a0' }
                 }
             },
             interaction: {
