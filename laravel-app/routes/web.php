@@ -1,73 +1,31 @@
 <?php
 
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\BillController;
-use App\Http\Controllers\RiskController;
-use App\Http\Controllers\LegislatorController;
-use App\Http\Controllers\CalendarController;
-use App\Http\Controllers\CommitteeController;
-use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
+|
+| Here is where you can register web routes for your application. These
+| routes are loaded by the RouteServiceProvider and all of them will
+| be assigned to the "web" middleware group. Make something great!
+|
 */
 
-// Redirect root to dashboard
 Route::get('/', function () {
-    return redirect()->route('dashboard');
+    return view('welcome');
 });
 
-// Dashboard
-Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-Route::get('/dashboard/data', [DashboardController::class, 'data'])->name('dashboard.data');
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
 
-// Bills
-Route::get('/bills', [BillController::class, 'index'])->name('bills.index');
-Route::get('/bills/export/csv', [BillController::class, 'exportCSV'])->name('bills.export.csv');
-Route::get('/bills/{id}', [BillController::class, 'show'])->name('bills.show');
-Route::get('/bills/{id}/export/pdf', [BillController::class, 'exportPDF'])->name('bills.export.pdf');
-Route::get('/bills/{id}/share', [BillController::class, 'share'])->name('bills.share');
-Route::get('/bills/compare', [BillController::class, 'compare'])->name('bills.compare');
-Route::get('/api/bills/search', [BillController::class, 'search'])->name('bills.search');
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
 
-// Risks
-Route::get('/risks', [RiskController::class, 'index'])->name('risks.index');
-Route::get('/risks/{id}', [RiskController::class, 'show'])->name('risks.show');
-
-// Legislators
-Route::get('/legislators', [LegislatorController::class, 'index'])->name('legislators.index');
-Route::get('/legislators/{id}', [LegislatorController::class, 'show'])->name('legislators.show');
-Route::get('/legislators/compare', [LegislatorController::class, 'compare'])->name('legislators.compare');
-
-// Calendar
-Route::get('/calendar', [CalendarController::class, 'index'])->name('calendar');
-Route::get('/calendar/events', [CalendarController::class, 'events'])->name('calendar.events');
-
-// Committees
-Route::get('/committees', [CommitteeController::class, 'index'])->name('committees.index');
-Route::get('/committees/{id}', [CommitteeController::class, 'show'])->name('committees.show');
-
-// Subscriptions & Alerts
-Route::get('/subscribe', [SubscriptionController::class, 'create'])->name('subscriptions.create');
-Route::post('/subscribe', [SubscriptionController::class, 'store'])->name('subscriptions.store');
-Route::get('/subscriptions/verify/{token}', [SubscriptionController::class, 'verify'])->name('subscriptions.verify');
-Route::get('/subscriptions/manage/{token}', [SubscriptionController::class, 'manage'])->name('subscriptions.manage');
-Route::post('/subscriptions/manage/{token}', [SubscriptionController::class, 'update'])->name('subscriptions.update');
-Route::get('/subscriptions/unsubscribe/{token}', [SubscriptionController::class, 'unsubscribe'])->name('subscriptions.unsubscribe');
-Route::post('/subscriptions/reactivate/{token}', [SubscriptionController::class, 'reactivate'])->name('subscriptions.reactivate');
-
-// API Documentation
-Route::get('/api', function () {
-    return response()->json([
-        'message' => 'Romanian Legislative Watcher API',
-        'version' => '1.0',
-        'endpoints' => [
-            'GET /api/bills/search' => 'Search bills',
-            'GET /dashboard/data' => 'Get dashboard statistics',
-            'GET /calendar/events' => 'Get calendar events for specific date',
-        ]
-    ]);
-})->name('api.index');
+require __DIR__.'/auth.php';
