@@ -25,7 +25,10 @@ Route::get('/dashboard/data', [DashboardController::class, 'data'])->name('dashb
 
 // Bills
 Route::get('/bills', [BillController::class, 'index'])->name('bills.index');
+Route::get('/bills/export/csv', [BillController::class, 'exportCSV'])->name('bills.export.csv');
 Route::get('/bills/{id}', [BillController::class, 'show'])->name('bills.show');
+Route::get('/bills/{id}/export/pdf', [BillController::class, 'exportPDF'])->name('bills.export.pdf');
+Route::get('/bills/{id}/share', [BillController::class, 'share'])->name('bills.share');
 Route::get('/bills/compare', [BillController::class, 'compare'])->name('bills.compare');
 Route::get('/api/bills/search', [BillController::class, 'search'])->name('bills.search');
 

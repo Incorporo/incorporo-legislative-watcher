@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\LegislativeBill;
 use App\Models\BillRisk;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class BillController extends Controller
 {
@@ -196,5 +197,150 @@ class BillController extends Controller
         });
 
         return view('bills.compare', compact('billsWithProgress'));
+    }
+
+    /**
+     * Export bill to PDF
+     */
+    public function exportPDF($id)
+    {
+        $bill = LegislativeBill::with([
+            'initiators.legislator',
+            'timeline' => function($query) {
+                $query->orderBy('event_date', 'desc');
+            },
+            'documents',
+            'risks' => function($query) {
+                $query->orderBy('risk_level', 'desc');
+            },
+            'analysis',
+            'committeeAssignments.committee'
+        ])->findOrFail($id);
+
+        $latestAnalysis = $bill->analysis->where('analysis_type', 'ai_assessment')->first();
+        $analysisData = $latestAnalysis?->analysis_result;
+        $progressPercentage = $this->calculateProgress($bill);
+
+        $pdf = Pdf::loadView('bills.pdf', compact('bill', 'latestAnalysis', 'analysisData', 'progressPercentage'));
+
+        $filename = 'bill-' . $bill->bill_number . '-' . $bill->year . '.pdf';
+
+        return $pdf->download($filename);
+    }
+
+    /**
+     * Export bills to CSV
+     */
+    public function exportCSV(Request $request)
+    {
+        $query = LegislativeBill::with(['initiators', 'risks']);
+
+        // Apply same filters as index
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('bill_number', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('chamber')) {
+            $query->where('chamber', $request->input('chamber'));
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->input('status'));
+        }
+
+        if ($request->filled('year')) {
+            $query->where('year', $request->input('year'));
+        }
+
+        if ($request->filled('urgent')) {
+            $query->where('urgency_status', true);
+        }
+
+        if ($request->filled('risk')) {
+            $riskLevel = $request->input('risk');
+            $query->whereHas('risks', function($q) use ($riskLevel) {
+                $q->where('risk_level', $riskLevel);
+            });
+        }
+
+        $bills = $query->orderBy('registration_date', 'desc')->limit(1000)->get();
+
+        $filename = 'legislative-bills-' . date('Y-m-d') . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"$filename\"",
+        ];
+
+        $callback = function() use ($bills) {
+            $file = fopen('php://output', 'w');
+
+            // Add UTF-8 BOM for proper Excel encoding
+            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+
+            // Header row
+            fputcsv($file, [
+                'Bill Number',
+                'Year',
+                'Title',
+                'Chamber',
+                'Status',
+                'Urgency',
+                'Type',
+                'Registration Date',
+                'Initiators',
+                'Risk Level',
+                'URL'
+            ]);
+
+            // Data rows
+            foreach ($bills as $bill) {
+                fputcsv($file, [
+                    $bill->bill_number,
+                    $bill->year,
+                    $bill->title,
+                    $bill->chamber === 'cdep' ? 'Camera Deputaților' : 'Senat',
+                    $bill->status ?? 'N/A',
+                    $bill->urgency_status ? 'Yes' : 'No',
+                    $bill->type ?? 'N/A',
+                    $bill->registration_date?->format('Y-m-d') ?? 'N/A',
+                    $bill->initiators->pluck('name')->join('; '),
+                    $bill->getHighestRiskLevel() ?? 'N/A',
+                    $bill->url ?? ''
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Share bill - returns shareable link with metadata
+     */
+    public function share($id)
+    {
+        $bill = LegislativeBill::with(['initiators', 'analysis'])->findOrFail($id);
+
+        $latestAnalysis = $bill->analysis->where('analysis_type', 'ai_assessment')->first();
+        $summary = $latestAnalysis?->analysis_result['summary'] ?? $bill->description ?? 'Proiect de lege din Parlamentul României';
+
+        // Generate shareable data
+        $shareData = [
+            'url' => route('bills.show', $bill->id),
+            'title' => $bill->title,
+            'description' => \Str::limit($summary, 200),
+            'image' => asset('images/og-image.png'), // You can generate dynamic OG images later
+            'bill_number' => $bill->bill_number . '/' . $bill->year,
+            'chamber' => $bill->chamber === 'cdep' ? 'Camera Deputaților' : 'Senat',
+        ];
+
+        return view('bills.share', compact('bill', 'shareData'));
     }
 }
