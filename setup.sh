@@ -163,7 +163,7 @@ fi
 
 # Step 8: Run Migrations
 print_header "Running Database Migrations"
-php artisan migrate --force --ansi
+DATABASE_URL="" php artisan migrate --force --ansi
 print_success "Database migrations completed"
 
 # Step 9: Create Storage Link
@@ -178,10 +178,10 @@ print_info "Ensured storage and bootstrap/cache are writable"
 
 # Step 11: Clear and Cache Config
 print_header "Optimizing Application"
-php artisan config:clear
-php artisan cache:clear
-php artisan view:clear
-php artisan route:clear
+DATABASE_URL="" php artisan config:clear
+DATABASE_URL="" php artisan cache:clear
+DATABASE_URL="" php artisan view:clear
+DATABASE_URL="" php artisan route:clear
 print_success "Cleared all caches"
 
 # Optional: Build Frontend Assets
