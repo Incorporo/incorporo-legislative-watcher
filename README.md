@@ -21,10 +21,12 @@ php artisan serve
 
 Then visit **http://localhost:8000** in your browser!
 
+> **Having issues?** See [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) for common problems and solutions, or run `./fix-composer.sh` from the `laravel-app` directory.
+
 ### Requirements
 
-- **PHP 8.1+** with extensions: `pdo`, `sqlite3`, `mbstring`, `xml`, `curl`
-- **Composer** (https://getcomposer.org)
+- **PHP 8.1+** with extensions: `pdo`, `sqlite3`, `mbstring`, `xml`, `curl`, `dom`, `tokenizer`, `zip`
+- **Composer 2.0+** (https://getcomposer.org)
 - **Node.js 16+** and NPM (optional, for frontend assets)
 - **Git**
 
@@ -95,6 +97,7 @@ The system will use AI to automatically analyze legislative processes and identi
 
 ## Documentation
 
+- **[TROUBLESHOOTING.md](./TROUBLESHOOTING.md)**: ⚠️ **START HERE** if you have installation or setup issues
 - **[RESEARCH.md](./RESEARCH.md)**: Comprehensive research on Romanian legislative websites, technical architecture, and implementation strategies (15,000+ words)
 - **[NEXT-STEPS.md](./NEXT-STEPS.md)**: Actionable roadmap from POC to production deployment
 
