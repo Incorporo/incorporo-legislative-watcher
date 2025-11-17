@@ -42,6 +42,23 @@ return [
     // If true, will rotate through multiple proxies if provided
     'proxy_rotation' => env('SCRAPER_PROXY_ROTATION', true),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Selenium WebDriver Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Selenium is used to bypass anti-bot protection by controlling a real
+    | browser instance. This is more effective than HTTP requests for sites
+    | with strict bot detection (like Parliament websites).
+    |
+    */
+
+    'selenium_enabled' => env('SELENIUM_ENABLED', false),
+
+    'selenium_url' => env('SELENIUM_URL', 'http://localhost:4444'),
+
+    'selenium_headless' => env('SELENIUM_HEADLESS', true),
+
     'cdep' => [
         'base_url' => env('CDEP_BASE_URL', 'https://www.cdep.ro'),
     ],
