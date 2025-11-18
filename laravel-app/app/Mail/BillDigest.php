@@ -15,13 +15,15 @@ class BillDigest extends Mailable
     use Queueable, SerializesModels;
 
     public BillSubscription $subscription;
+
     public Collection $bills;
+
     public int $totalCount;
 
     /**
      * Create a new message instance.
      */
-    public function __construct(BillSubscription $subscription, Collection $bills, int $totalCount = null)
+    public function __construct(BillSubscription $subscription, Collection $bills, ?int $totalCount = null)
     {
         $this->subscription = $subscription;
         $this->bills = $bills;
@@ -33,7 +35,7 @@ class BillDigest extends Mailable
      */
     public function envelope(): Envelope
     {
-        $frequency = match($this->subscription->frequency) {
+        $frequency = match ($this->subscription->frequency) {
             'instant' => 'Notificare Instant',
             'daily' => 'Rezumat Zilnic',
             'weekly' => 'Rezumat Săptămânal',
@@ -41,7 +43,7 @@ class BillDigest extends Mailable
         };
 
         return new Envelope(
-            subject: $frequency . ' - ' . $this->bills->count() . ' ' . $this->getPluralLabel(),
+            subject: $frequency.' - '.$this->bills->count().' '.$this->getPluralLabel(),
         );
     }
 

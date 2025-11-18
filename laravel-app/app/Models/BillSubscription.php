@@ -91,16 +91,16 @@ class BillSubscription extends Model
         return $query->active()
             ->where(function ($q) {
                 $q->whereNull('last_notified_at')
-                  ->orWhere(function ($subq) {
-                      // Daily: last notified more than 23 hours ago
-                      $subq->where('frequency', 'daily')
-                          ->where('last_notified_at', '<=', now()->subHours(23));
-                  })
-                  ->orWhere(function ($subq) {
-                      // Weekly: last notified more than 6 days ago
-                      $subq->where('frequency', 'weekly')
-                          ->where('last_notified_at', '<=', now()->subDays(6));
-                  });
+                    ->orWhere(function ($subq) {
+                        // Daily: last notified more than 23 hours ago
+                        $subq->where('frequency', 'daily')
+                            ->where('last_notified_at', '<=', now()->subHours(23));
+                    })
+                    ->orWhere(function ($subq) {
+                        // Weekly: last notified more than 6 days ago
+                        $subq->where('frequency', 'weekly')
+                            ->where('last_notified_at', '<=', now()->subDays(6));
+                    });
             });
     }
 
@@ -110,17 +110,17 @@ class BillSubscription extends Model
     public function matchesBill(LegislativeBill $bill): bool
     {
         // Check urgent_only filter
-        if ($this->urgent_only && !$bill->urgency_status) {
+        if ($this->urgent_only && ! $bill->urgency_status) {
             return false;
         }
 
         // Check chamber filter
-        if (!empty($this->chambers) && !in_array($bill->chamber, $this->chambers)) {
+        if (! empty($this->chambers) && ! in_array($bill->chamber, $this->chambers)) {
             return false;
         }
 
         // Check status filter
-        if (!empty($this->statuses) && !in_array($bill->status, $this->statuses)) {
+        if (! empty($this->statuses) && ! in_array($bill->status, $this->statuses)) {
             return false;
         }
 
@@ -133,9 +133,9 @@ class BillSubscription extends Model
         }
 
         // Check keywords - search in title and description
-        if (!empty($this->keywords)) {
+        if (! empty($this->keywords)) {
             $matchFound = false;
-            $searchText = strtolower($bill->title . ' ' . $bill->description);
+            $searchText = strtolower($bill->title.' '.$bill->description);
 
             foreach ($this->keywords as $keyword) {
                 if (str_contains($searchText, strtolower($keyword))) {
@@ -144,7 +144,7 @@ class BillSubscription extends Model
                 }
             }
 
-            if (!$matchFound) {
+            if (! $matchFound) {
                 return false;
             }
         }
@@ -164,11 +164,11 @@ class BillSubscription extends Model
             $query->where('urgency_status', true);
         }
 
-        if (!empty($this->chambers)) {
+        if (! empty($this->chambers)) {
             $query->whereIn('chamber', $this->chambers);
         }
 
-        if (!empty($this->statuses)) {
+        if (! empty($this->statuses)) {
             $query->whereIn('status', $this->statuses);
         }
 
@@ -179,11 +179,11 @@ class BillSubscription extends Model
         }
 
         // Keyword search
-        if (!empty($this->keywords)) {
+        if (! empty($this->keywords)) {
             $query->where(function ($q) {
                 foreach ($this->keywords as $keyword) {
                     $q->orWhere('title', 'like', "%{$keyword}%")
-                      ->orWhere('description', 'like', "%{$keyword}%");
+                        ->orWhere('description', 'like', "%{$keyword}%");
                 }
             });
         }
@@ -192,14 +192,14 @@ class BillSubscription extends Model
         if ($this->last_notified_at) {
             $query->where(function ($q) {
                 $q->where('created_at', '>', $this->last_notified_at)
-                  ->orWhere('updated_at', '>', $this->last_notified_at);
+                    ->orWhere('updated_at', '>', $this->last_notified_at);
             });
         }
 
         return $query->with(['initiators', 'analysis', 'risks'])
-                     ->orderBy('created_at', 'desc')
-                     ->limit($limit)
-                     ->get();
+            ->orderBy('created_at', 'desc')
+            ->limit($limit)
+            ->get();
     }
 
     /**
@@ -234,7 +234,7 @@ class BillSubscription extends Model
      */
     public function isVerified(): bool
     {
-        return !is_null($this->verified_at);
+        return ! is_null($this->verified_at);
     }
 
     /**
@@ -266,7 +266,7 @@ class BillSubscription extends Model
      */
     public function getFrequencyLabel(): string
     {
-        return match($this->frequency) {
+        return match ($this->frequency) {
             'instant' => 'Instant (la fiecare proiect)',
             'daily' => 'Zilnic',
             'weekly' => 'Săptămânal',
@@ -281,13 +281,13 @@ class BillSubscription extends Model
     {
         $parts = [];
 
-        if (!empty($this->keywords)) {
-            $parts[] = 'Cuvinte cheie: ' . implode(', ', $this->keywords);
+        if (! empty($this->keywords)) {
+            $parts[] = 'Cuvinte cheie: '.implode(', ', $this->keywords);
         }
 
-        if (!empty($this->chambers)) {
-            $chambers = array_map(fn($c) => $c === 'cdep' ? 'CDEP' : 'Senat', $this->chambers);
-            $parts[] = 'Camere: ' . implode(', ', $chambers);
+        if (! empty($this->chambers)) {
+            $chambers = array_map(fn ($c) => $c === 'cdep' ? 'CDEP' : 'Senat', $this->chambers);
+            $parts[] = 'Camere: '.implode(', ', $chambers);
         }
 
         if ($this->urgent_only) {
@@ -295,9 +295,9 @@ class BillSubscription extends Model
         }
 
         if ($this->risk_level) {
-            $parts[] = 'Risc: ' . ucfirst($this->risk_level);
+            $parts[] = 'Risc: '.ucfirst($this->risk_level);
         }
 
-        return !empty($parts) ? implode(' • ', $parts) : 'Toate proiectele';
+        return ! empty($parts) ? implode(' • ', $parts) : 'Toate proiectele';
     }
 }

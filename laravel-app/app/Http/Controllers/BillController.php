@@ -3,9 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\LegislativeBill;
-use App\Models\BillRisk;
-use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\Request;
 
 class BillController extends Controller
 {
@@ -19,10 +18,10 @@ class BillController extends Controller
         // Search
         if ($request->filled('search')) {
             $search = $request->input('search');
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('bill_number', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%");
+                    ->orWhere('bill_number', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%");
             });
         }
 
@@ -49,7 +48,7 @@ class BillController extends Controller
         // Filter by risk level
         if ($request->filled('risk')) {
             $riskLevel = $request->input('risk');
-            $query->whereHas('risks', function($q) use ($riskLevel) {
+            $query->whereHas('risks', function ($q) use ($riskLevel) {
                 $q->where('risk_level', $riskLevel);
             });
         }
@@ -83,18 +82,18 @@ class BillController extends Controller
     {
         $bill = LegislativeBill::with([
             'initiators.legislator',
-            'timeline' => function($query) {
+            'timeline' => function ($query) {
                 $query->orderBy('event_date', 'desc');
             },
             'documents',
-            'risks' => function($query) {
+            'risks' => function ($query) {
                 $query->orderBy('risk_level', 'desc');
             },
             'analysis',
-            'changes' => function($query) {
+            'changes' => function ($query) {
                 $query->orderBy('detected_at', 'desc')->limit(10);
             },
-            'committeeAssignments.committee'
+            'committeeAssignments.committee',
         ])->findOrFail($id);
 
         // Get similar bills (same type, similar year)
@@ -150,7 +149,7 @@ class BillController extends Controller
             ->get();
 
         return response()->json([
-            'results' => $bills->map(function($bill) {
+            'results' => $bills->map(function ($bill) {
                 return [
                     'id' => $bill->id,
                     'title' => $bill->title,
@@ -161,7 +160,7 @@ class BillController extends Controller
                     'url' => route('bills.show', $bill->id),
                     'risk_level' => $bill->getHighestRiskLevel(),
                 ];
-            })
+            }),
         ]);
     }
 
@@ -185,14 +184,14 @@ class BillController extends Controller
             'timeline',
             'risks',
             'analysis',
-            'committeeAssignments.committee'
+            'committeeAssignments.committee',
         ])->findOrFail($billIds);
 
         // Calculate progress for each bill
-        $billsWithProgress = $bills->map(function($bill) {
+        $billsWithProgress = $bills->map(function ($bill) {
             return [
                 'bill' => $bill,
-                'progress' => $this->calculateProgress($bill)
+                'progress' => $this->calculateProgress($bill),
             ];
         });
 
@@ -206,15 +205,15 @@ class BillController extends Controller
     {
         $bill = LegislativeBill::with([
             'initiators.legislator',
-            'timeline' => function($query) {
+            'timeline' => function ($query) {
                 $query->orderBy('event_date', 'desc');
             },
             'documents',
-            'risks' => function($query) {
+            'risks' => function ($query) {
                 $query->orderBy('risk_level', 'desc');
             },
             'analysis',
-            'committeeAssignments.committee'
+            'committeeAssignments.committee',
         ])->findOrFail($id);
 
         $latestAnalysis = $bill->analysis->where('analysis_type', 'ai_assessment')->first();
@@ -223,7 +222,7 @@ class BillController extends Controller
 
         $pdf = Pdf::loadView('bills.pdf', compact('bill', 'latestAnalysis', 'analysisData', 'progressPercentage'));
 
-        $filename = 'bill-' . $bill->bill_number . '-' . $bill->year . '.pdf';
+        $filename = 'bill-'.$bill->bill_number.'-'.$bill->year.'.pdf';
 
         return $pdf->download($filename);
     }
@@ -238,10 +237,10 @@ class BillController extends Controller
         // Apply same filters as index
         if ($request->filled('search')) {
             $search = $request->input('search');
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('bill_number', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%");
+                    ->orWhere('bill_number', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%");
             });
         }
 
@@ -263,21 +262,21 @@ class BillController extends Controller
 
         if ($request->filled('risk')) {
             $riskLevel = $request->input('risk');
-            $query->whereHas('risks', function($q) use ($riskLevel) {
+            $query->whereHas('risks', function ($q) use ($riskLevel) {
                 $q->where('risk_level', $riskLevel);
             });
         }
 
         $bills = $query->orderBy('registration_date', 'desc')->limit(1000)->get();
 
-        $filename = 'legislative-bills-' . date('Y-m-d') . '.csv';
+        $filename = 'legislative-bills-'.date('Y-m-d').'.csv';
 
         $headers = [
             'Content-Type' => 'text/csv',
             'Content-Disposition' => "attachment; filename=\"$filename\"",
         ];
 
-        $callback = function() use ($bills) {
+        $callback = function () use ($bills) {
             $file = fopen('php://output', 'w');
 
             // Add UTF-8 BOM for proper Excel encoding
@@ -295,7 +294,7 @@ class BillController extends Controller
                 'Registration Date',
                 'Initiators',
                 'Risk Level',
-                'URL'
+                'URL',
             ]);
 
             // Data rows
@@ -311,7 +310,7 @@ class BillController extends Controller
                     $bill->registration_date?->format('Y-m-d') ?? 'N/A',
                     $bill->initiators->pluck('name')->join('; '),
                     $bill->getHighestRiskLevel() ?? 'N/A',
-                    $bill->url ?? ''
+                    $bill->url ?? '',
                 ]);
             }
 
@@ -337,7 +336,7 @@ class BillController extends Controller
             'title' => $bill->title,
             'description' => \Str::limit($summary, 200),
             'image' => asset('images/og-image.png'), // You can generate dynamic OG images later
-            'bill_number' => $bill->bill_number . '/' . $bill->year,
+            'bill_number' => $bill->bill_number.'/'.$bill->year,
             'chamber' => $bill->chamber === 'cdep' ? 'Camera Deputaților' : 'Senat',
         ];
 

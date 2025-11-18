@@ -2,30 +2,31 @@
 
 namespace App\Services\Scrapers;
 
-use App\Models\LegislativeBill;
+use App\Models\BillChange;
 use App\Models\BillDocument;
 use App\Models\BillInitiator;
 use App\Models\BillTimeline;
-use App\Models\BillChange;
+use App\Models\LegislativeBill;
 use App\Models\ScrapingJob;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 use Symfony\Component\DomCrawler\Crawler;
 
 class CDEPScraper extends BaseScraper
 {
     protected $baseUrl = 'https://www.cdep.ro';
+
     protected $chamber = 'cdep';
+
     protected $userAgent = 'Mozilla/5.0 (compatible; RomanianLegislativeWatcher/1.0)';
+
     protected $delaySeconds = 3; // Respectful rate limiting
 
     /**
      * Scrape list of bills from CDEP
      *
-     * @param int $chamber Chamber ID (1=Senate, 2=Chamber of Deputies)
-     * @param int|null $year Filter by year
-     * @param int $limit Maximum bills to scrape
+     * @param  int  $chamber  Chamber ID (1=Senate, 2=Chamber of Deputies)
+     * @param  int|null  $year  Filter by year
+     * @param  int  $limit  Maximum bills to scrape
      * @return array
      */
     public function scrapeBillList($chamber = 2, $year = null, $limit = null)
@@ -45,7 +46,7 @@ class CDEPScraper extends BaseScraper
             $count = 0;
 
             // Extract bill links
-            $crawler->filter('a[href*="idp="]')->each(function (Crawler $node) use (&$bills, &$count, $limit, $year) {
+            $crawler->filter('a[href*="idp="]')->each(function (Crawler $node) use (&$bills, &$count, $limit) {
                 if ($limit && $count >= $limit) {
                     return;
                 }
@@ -71,10 +72,11 @@ class CDEPScraper extends BaseScraper
             });
 
             Log::info("CDEP: Found {$count} bills");
+
             return $bills;
 
         } catch (\Exception $e) {
-            Log::error("CDEP: Error scraping bill list: " . $e->getMessage());
+            Log::error('CDEP: Error scraping bill list: '.$e->getMessage());
             throw $e;
         }
     }
@@ -82,8 +84,8 @@ class CDEPScraper extends BaseScraper
     /**
      * Scrape detailed information for a specific bill
      *
-     * @param string $idp Bill internal ID
-     * @param int $chamber Chamber ID
+     * @param  string  $idp  Bill internal ID
+     * @param  int  $chamber  Chamber ID
      * @return array
      */
     public function scrapeBillDetail($idp, $chamber = 2)
@@ -159,7 +161,7 @@ class CDEPScraper extends BaseScraper
             return $data;
 
         } catch (\Exception $e) {
-            Log::error("CDEP: Error scraping bill {$idp}: " . $e->getMessage());
+            Log::error("CDEP: Error scraping bill {$idp}: ".$e->getMessage());
             throw $e;
         }
     }
@@ -176,25 +178,25 @@ class CDEPScraper extends BaseScraper
 
             // Parse format like "L-123/2025" or "PL-x 456/2024"
             if (preg_match('/([A-Z\-]+)\s*(\d+)\/(\d{4})/i', $numberText, $matches)) {
-                $data['bill_number'] = $matches[1] . $matches[2];
-                $data['year'] = (int)$matches[3];
+                $data['bill_number'] = $matches[1].$matches[2];
+                $data['year'] = (int) $matches[3];
             } elseif (preg_match('/(\d+)\/(\d{4})/', $numberText, $matches)) {
                 $data['bill_number'] = $matches[1];
-                $data['year'] = (int)$matches[2];
+                $data['year'] = (int) $matches[2];
             }
         }
 
         // Fallback: try to extract from title
-        if (!isset($data['year']) && isset($data['title'])) {
+        if (! isset($data['year']) && isset($data['title'])) {
             if (preg_match('/(\d+)\/(\d{4})/', $data['title'], $matches)) {
                 $data['bill_number'] = $data['bill_number'] ?? $matches[1];
-                $data['year'] = (int)$matches[2];
+                $data['year'] = (int) $matches[2];
             }
         }
 
         // Default to current year if not found
         $data['year'] = $data['year'] ?? date('Y');
-        $data['bill_number'] = $data['bill_number'] ?? 'CDEP-' . $data['internal_id'];
+        $data['bill_number'] = $data['bill_number'] ?? 'CDEP-'.$data['internal_id'];
     }
 
     /**
@@ -298,7 +300,7 @@ class CDEPScraper extends BaseScraper
     /**
      * Save bill data to database
      */
-    public function saveBill($data, ScrapingJob $job = null)
+    public function saveBill($data, ?ScrapingJob $job = null)
     {
         try {
             // Find existing or create new bill
@@ -306,7 +308,7 @@ class CDEPScraper extends BaseScraper
                 ->where('internal_id', $data['internal_id'])
                 ->first();
 
-            $isNew = !$bill;
+            $isNew = ! $bill;
 
             if ($bill) {
                 // Detect changes
@@ -316,7 +318,7 @@ class CDEPScraper extends BaseScraper
                     $bill->last_changed_at = now();
                 }
             } else {
-                $bill = new LegislativeBill();
+                $bill = new LegislativeBill;
             }
 
             // Update bill data
@@ -366,17 +368,17 @@ class CDEPScraper extends BaseScraper
                 $job->save();
             }
 
-            Log::info("CDEP: " . ($isNew ? "Created" : "Updated") . " bill {$bill->internal_id}");
+            Log::info('CDEP: '.($isNew ? 'Created' : 'Updated')." bill {$bill->internal_id}");
 
             return $bill;
 
         } catch (\Exception $e) {
-            Log::error("CDEP: Error saving bill: " . $e->getMessage());
+            Log::error('CDEP: Error saving bill: '.$e->getMessage());
 
             if ($job) {
                 $job->items_failed++;
                 $job->errors_count++;
-                $job->error_log .= "\n[" . now() . "] " . $e->getMessage();
+                $job->error_log .= "\n[".now().'] '.$e->getMessage();
                 $job->save();
             }
 
@@ -416,7 +418,7 @@ class CDEPScraper extends BaseScraper
                 ->where('url', $doc['url'])
                 ->first();
 
-            if (!$existing) {
+            if (! $existing) {
                 BillDocument::create([
                     'bill_id' => $bill->id,
                     'document_type' => $doc['document_type'],
@@ -440,7 +442,7 @@ class CDEPScraper extends BaseScraper
                 ->where('description', $event['description'])
                 ->first();
 
-            if (!$existing) {
+            if (! $existing) {
                 BillTimeline::create([
                     'bill_id' => $bill->id,
                     'event_date' => $event['event_date'],
@@ -460,7 +462,7 @@ class CDEPScraper extends BaseScraper
         $fields = ['title', 'status', 'type', 'description'];
 
         foreach ($fields as $field) {
-            if (isset($newData[$field]) && $bill->$field !== $newData[$field]) {
+            if (isset($newData[$field]) && $newData[$field] !== $bill->$field) {
                 BillChange::create([
                     'bill_id' => $bill->id,
                     'field_name' => $field,

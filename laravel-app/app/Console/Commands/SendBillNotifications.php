@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Models\BillSubscription;
 use App\Jobs\SendBillDigest;
+use App\Models\BillSubscription;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
@@ -38,8 +38,9 @@ class SendBillNotifications extends Command
 
         // Filter by frequency if specified
         if ($frequency = $this->option('frequency')) {
-            if (!in_array($frequency, ['instant', 'daily', 'weekly'])) {
+            if (! in_array($frequency, ['instant', 'daily', 'weekly'])) {
                 $this->error('Invalid frequency. Use: instant, daily, or weekly');
+
                 return 1;
             }
             $query->where('frequency', $frequency);
@@ -56,6 +57,7 @@ class SendBillNotifications extends Command
 
         if ($subscriptions->isEmpty()) {
             $this->warn('No subscriptions due for notification.');
+
             return 0;
         }
 
@@ -71,10 +73,11 @@ class SendBillNotifications extends Command
                         $sub->email,
                         $sub->getFrequencyLabel(),
                         $sub->last_notified_at ? $sub->last_notified_at->diffForHumans() : 'Never',
-                        $sub->getSummary()
+                        $sub->getSummary(),
                     ];
                 })->toArray()
             );
+
             return 0;
         }
 
@@ -94,7 +97,7 @@ class SendBillNotifications extends Command
                 $errors++;
                 Log::error('Failed to dispatch bill digest job', [
                     'subscription_id' => $subscription->id,
-                    'error' => $e->getMessage()
+                    'error' => $e->getMessage(),
                 ]);
             }
 

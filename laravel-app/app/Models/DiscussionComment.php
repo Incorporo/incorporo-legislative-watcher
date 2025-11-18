@@ -85,10 +85,12 @@ class DiscussionComment extends Model
         if ($this->isLikedBy($userId)) {
             $this->likes()->detach($userId);
             $this->decrement('likes_count');
+
             return false;
         } else {
             $this->likes()->attach($userId);
             $this->increment('likes_count');
+
             return true;
         }
     }

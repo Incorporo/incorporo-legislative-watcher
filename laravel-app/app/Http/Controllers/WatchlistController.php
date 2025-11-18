@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\LegislativeBill;
 use App\Models\Watchlist;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -143,6 +142,7 @@ class WatchlistController extends Controller
 
         if ($watchlist) {
             $watchlist->delete();
+
             return response()->json([
                 'watching' => false,
                 'message' => 'Bill removed from watchlist',

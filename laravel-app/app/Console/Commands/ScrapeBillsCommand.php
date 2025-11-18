@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
+use App\Models\ScrapingJob;
 use App\Services\Scrapers\CDEPScraper;
 use App\Services\Scrapers\SenateScraper;
-use App\Models\ScrapingJob;
+use Illuminate\Console\Command;
 
 class ScrapeBillsCommand extends Command
 {
@@ -40,7 +40,7 @@ class ScrapeBillsCommand extends Command
         $force = $this->option('force');
 
         $this->info('Starting legislative bill scraping...');
-        $this->info("Chamber: {$chamber}, Year: " . ($year ?: 'all') . ", Limit: " . ($limit ?: 'none'));
+        $this->info("Chamber: {$chamber}, Year: ".($year ?: 'all').', Limit: '.($limit ?: 'none'));
 
         // Create scraping job record
         $job = ScrapingJob::create([
@@ -74,7 +74,7 @@ class ScrapeBillsCommand extends Command
         } catch (\Exception $e) {
             $job->markAsFailed($e->getMessage());
 
-            $this->error('❌ Scraping failed: ' . $e->getMessage());
+            $this->error('❌ Scraping failed: '.$e->getMessage());
             $this->error($e->getTraceAsString());
 
             return 1;
@@ -88,19 +88,20 @@ class ScrapeBillsCommand extends Command
      */
     protected function scrapeChamber($chamber, $year, $limit, $full, $force, ScrapingJob $job)
     {
-        $scraper = $chamber === 'cdep' ? new CDEPScraper() : new SenateScraper();
+        $scraper = $chamber === 'cdep' ? new CDEPScraper : new SenateScraper;
 
         // Step 1: Get list of bills
-        $this->info("Fetching bill list...");
+        $this->info('Fetching bill list...');
         $bills = $scraper->scrapeBillList($chamber === 'cdep' ? 2 : null, $year, $limit);
 
         $job->items_total += count($bills);
         $job->save();
 
-        $this->info("Found " . count($bills) . " bills");
+        $this->info('Found '.count($bills).' bills');
 
         if (empty($bills)) {
             $this->warn("No bills found for {$chamber}");
+
             return;
         }
 
@@ -130,9 +131,10 @@ class ScrapeBillsCommand extends Command
 
             } catch (\Exception $e) {
                 $this->newLine();
-                $this->error("Failed to scrape bill {$internalId}: " . $e->getMessage());
+                $this->error("Failed to scrape bill {$internalId}: ".$e->getMessage());
                 $job->items_failed++;
                 $job->errors_count++;
+
                 continue;
             }
         }
@@ -155,7 +157,7 @@ class ScrapeBillsCommand extends Command
                 ['Items Updated', $job->items_updated],
                 ['Items Failed', $job->items_failed],
                 ['HTTP Requests', $job->http_requests],
-                ['Duration', $job->duration_seconds . 's'],
+                ['Duration', $job->duration_seconds.'s'],
             ]
         );
     }

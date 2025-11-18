@@ -61,6 +61,7 @@ class TeamMember extends Model
         }
 
         $permissions = $this->permissions ?? [];
+
         return in_array($permission, $permissions);
     }
 

@@ -2,12 +2,12 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Models\BillDocument;
 use App\Models\ScrapingJob;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class DownloadDocumentsCommand extends Command
 {
@@ -32,7 +32,7 @@ class DownloadDocumentsCommand extends Command
      */
     public function handle()
     {
-        $limit = (int)$this->option('limit');
+        $limit = (int) $this->option('limit');
         $force = $this->option('force');
 
         $this->info('Downloading legislative documents...');
@@ -49,7 +49,7 @@ class DownloadDocumentsCommand extends Command
         try {
             // Find documents that need downloading
             $query = BillDocument::where('downloaded', false)
-                ->orWhere(function($q) use ($force) {
+                ->orWhere(function ($q) use ($force) {
                     if ($force) {
                         $q->where('downloaded', true);
                     }
@@ -63,6 +63,7 @@ class DownloadDocumentsCommand extends Command
             if ($documents->isEmpty()) {
                 $this->info('✅ No documents to download');
                 $job->markAsCompleted();
+
                 return 0;
             }
 
@@ -77,7 +78,7 @@ class DownloadDocumentsCommand extends Command
 
                 } catch (\Exception $e) {
                     $this->newLine();
-                    $this->warn("Failed to download {$document->title}: " . $e->getMessage());
+                    $this->warn("Failed to download {$document->title}: ".$e->getMessage());
 
                     $document->download_attempts++;
                     $document->download_error = $e->getMessage();
@@ -96,13 +97,14 @@ class DownloadDocumentsCommand extends Command
 
             $job->markAsCompleted();
 
-            $this->info("✅ Document download completed");
-            $this->info("  Downloaded: " . ($job->items_processed - $job->items_failed) . ", Failed: {$job->items_failed}");
-            $this->info("  Total bytes: " . $this->formatBytes($job->bytes_downloaded));
+            $this->info('✅ Document download completed');
+            $this->info('  Downloaded: '.($job->items_processed - $job->items_failed).", Failed: {$job->items_failed}");
+            $this->info('  Total bytes: '.$this->formatBytes($job->bytes_downloaded));
 
         } catch (\Exception $e) {
             $job->markAsFailed($e->getMessage());
-            $this->error('❌ Error: ' . $e->getMessage());
+            $this->error('❌ Error: '.$e->getMessage());
+
             return 1;
         }
 
@@ -120,7 +122,7 @@ class DownloadDocumentsCommand extends Command
             ])
             ->get($document->url);
 
-        if (!$response->successful()) {
+        if (! $response->successful()) {
             throw new \Exception("HTTP {$response->status()} error");
         }
 
@@ -160,10 +162,11 @@ class DownloadDocumentsCommand extends Command
     protected function formatBytes($bytes)
     {
         if ($bytes >= 1048576) {
-            return round($bytes / 1048576, 2) . ' MB';
+            return round($bytes / 1048576, 2).' MB';
         } elseif ($bytes >= 1024) {
-            return round($bytes / 1024, 2) . ' KB';
+            return round($bytes / 1024, 2).' KB';
         }
-        return $bytes . ' bytes';
+
+        return $bytes.' bytes';
     }
 }

@@ -110,13 +110,13 @@ class TestScrapersCommand extends Command
 
             if ($response->successful()) {
                 $this->info('✓ Successfully connected to CDEP website');
-                $this->info('✓ Response code: ' . $response->status());
-                $this->info('✓ Content length: ' . strlen($response->body()) . ' bytes');
+                $this->info('✓ Response code: '.$response->status());
+                $this->info('✓ Content length: '.strlen($response->body()).' bytes');
 
                 // Test parsing
                 $crawler = new Crawler($response->body());
                 $billLinks = $crawler->filter('a[href*="idp="]');
-                $this->info('✓ Found ' . $billLinks->count() . ' bill links on main page');
+                $this->info('✓ Found '.$billLinks->count().' bill links on main page');
 
                 if ($billLinks->count() > 0) {
                     $this->newLine();
@@ -127,7 +127,7 @@ class TestScrapersCommand extends Command
                             $href = $node->attr('href');
                             preg_match('/idp=(\d+)/', $href, $matches);
                             $title = trim($node->text());
-                            $this->line('  - ID: ' . ($matches[1] ?? 'N/A') . ', Title: ' . substr($title, 0, 60) . '...');
+                            $this->line('  - ID: '.($matches[1] ?? 'N/A').', Title: '.substr($title, 0, 60).'...');
                             $count++;
                         }
                     });
@@ -135,11 +135,13 @@ class TestScrapersCommand extends Command
 
                 return true;
             } else {
-                $this->error('✗ Failed to connect: HTTP ' . $response->status());
+                $this->error('✗ Failed to connect: HTTP '.$response->status());
+
                 return false;
             }
         } catch (\Exception $e) {
-            $this->error('✗ Error: ' . $e->getMessage());
+            $this->error('✗ Error: '.$e->getMessage());
+
             return false;
         }
     }
@@ -159,15 +161,18 @@ class TestScrapersCommand extends Command
 
             if ($response->successful()) {
                 $this->info('✓ Successfully connected to Senate website');
-                $this->info('✓ Response code: ' . $response->status());
-                $this->info('✓ Content length: ' . strlen($response->body()) . ' bytes');
+                $this->info('✓ Response code: '.$response->status());
+                $this->info('✓ Content length: '.strlen($response->body()).' bytes');
+
                 return true;
             } else {
-                $this->error('✗ Failed to connect: HTTP ' . $response->status());
+                $this->error('✗ Failed to connect: HTTP '.$response->status());
+
                 return false;
             }
         } catch (\Exception $e) {
-            $this->error('✗ Error: ' . $e->getMessage());
+            $this->error('✗ Error: '.$e->getMessage());
+
             return false;
         }
     }
@@ -213,33 +218,38 @@ class TestScrapersCommand extends Command
                         // Try to extract some fields
                         $title = $detailCrawler->filter('.headline, h1, .title')->first();
                         if ($title->count()) {
-                            $this->line('  Title: ' . substr(trim($title->text()), 0, 100) . '...');
+                            $this->line('  Title: '.substr(trim($title->text()), 0, 100).'...');
                         }
 
                         // Check for table data
                         $tables = $detailCrawler->filter('table');
-                        $this->line('  Found ' . $tables->count() . ' tables with metadata');
+                        $this->line('  Found '.$tables->count().' tables with metadata');
 
                         // Check for documents
                         $docLinks = $detailCrawler->filter('a[href*=".pdf"], a[href*=".doc"]');
-                        $this->line('  Found ' . $docLinks->count() . ' document links');
+                        $this->line('  Found '.$docLinks->count().' document links');
 
                         $this->info('✓ Bill detail scraping structure looks correct');
+
                         return true;
                     } else {
                         $this->error('✗ Failed to fetch bill details');
+
                         return false;
                     }
                 } else {
                     $this->error('✗ No bills found to test with');
+
                     return false;
                 }
             } else {
                 $this->error('✗ Failed to fetch bill list');
+
                 return false;
             }
         } catch (\Exception $e) {
-            $this->error('✗ Error: ' . $e->getMessage());
+            $this->error('✗ Error: '.$e->getMessage());
+
             return false;
         }
     }
@@ -258,6 +268,7 @@ class TestScrapersCommand extends Command
         $elapsed = round(microtime(true) - $start, 2);
 
         $this->info("✓ Delay working: {$elapsed} seconds");
+
         return true;
     }
 
@@ -273,15 +284,18 @@ class TestScrapersCommand extends Command
             $response = Http::withHeaders($this->getHeaders())
                 ->timeout(2)
                 ->get('https://www.cdep.ro/nonexistent-page-12345');
-            $this->line('Response code: ' . $response->status());
+            $this->line('Response code: '.$response->status());
 
             if ($response->status() === 404) {
                 $this->info('✓ Correctly handles 404 errors');
+
                 return true;
             }
+
             return false;
         } catch (\Exception $e) {
-            $this->info('✓ Exception handling works: ' . get_class($e));
+            $this->info('✓ Exception handling works: '.get_class($e));
+
             return true;
         }
     }

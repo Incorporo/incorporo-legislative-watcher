@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BillRisk;
+use App\Models\DashboardPreference;
 use App\Models\LegislativeBill;
 use App\Models\Legislator;
-use App\Models\BillRisk;
 use App\Models\ScrapingJob;
-use App\Models\DashboardPreference;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -22,7 +22,7 @@ class DashboardController extends Controller
         $stats = [
             'total_bills' => LegislativeBill::count(),
             'active_bills' => LegislativeBill::whereIn('status', [
-                'committee_review', 'debate', 'pending'
+                'committee_review', 'debate', 'pending',
             ])->count(),
             'urgent_bills' => LegislativeBill::where('urgency_status', true)->count(),
             'high_risk_bills' => BillRisk::where('risk_level', 'critical')
@@ -40,22 +40,22 @@ class DashboardController extends Controller
             ->get();
 
         // High-risk bills
-        $highRiskBills = LegislativeBill::whereHas('risks', function($query) {
+        $highRiskBills = LegislativeBill::whereHas('risks', function ($query) {
             $query->whereIn('risk_level', ['critical', 'high']);
         })
-        ->with(['risks' => function($query) {
-            $query->whereIn('risk_level', ['critical', 'high']);
-        }])
-        ->orderBy('registration_date', 'desc')
-        ->limit(5)
-        ->get();
+            ->with(['risks' => function ($query) {
+                $query->whereIn('risk_level', ['critical', 'high']);
+            }])
+            ->orderBy('registration_date', 'desc')
+            ->limit(5)
+            ->get();
 
         // Urgent bills
         $urgentBills = LegislativeBill::where('urgency_status', true)
-            ->with(['timeline' => function($query) {
+            ->with(['timeline' => function ($query) {
                 $query->where('deadline', '>', now())
-                      ->orderBy('deadline', 'asc')
-                      ->limit(1);
+                    ->orderBy('deadline', 'asc')
+                    ->limit(1);
             }])
             ->orderBy('registration_date', 'desc')
             ->limit(5)
@@ -89,9 +89,9 @@ class DashboardController extends Controller
         }
 
         $billsPerMonth = LegislativeBill::select(
-                DB::raw($dateFormat),
-                DB::raw('count(*) as total')
-            )
+            DB::raw($dateFormat),
+            DB::raw('count(*) as total')
+        )
             ->where('registration_date', '>', now()->subMonths(6))
             ->groupBy('month')
             ->orderBy('month', 'asc')
@@ -118,7 +118,7 @@ class DashboardController extends Controller
             'stats' => [
                 'total_bills' => LegislativeBill::count(),
                 'active_bills' => LegislativeBill::whereIn('status', [
-                    'committee_review', 'debate', 'pending'
+                    'committee_review', 'debate', 'pending',
                 ])->count(),
                 'urgent_bills' => LegislativeBill::where('urgency_status', true)->count(),
                 'high_risk_bills' => BillRisk::whereIn('risk_level', ['critical', 'high'])
@@ -137,7 +137,7 @@ class DashboardController extends Controller
         $preferences = Auth::user()->dashboardPreferences;
 
         // If no preferences exist, create default ones
-        if (!$preferences) {
+        if (! $preferences) {
             $preferences = Auth::user()->dashboardPreferences()->create([
                 'widget_layout' => DashboardPreference::getDefaultLayout(),
                 'visible_widgets' => DashboardPreference::getDefaultVisibleWidgets(),
@@ -162,7 +162,7 @@ class DashboardController extends Controller
 
         $preferences = Auth::user()->dashboardPreferences;
 
-        if (!$preferences) {
+        if (! $preferences) {
             $preferences = Auth::user()->dashboardPreferences()->create($validated);
         } else {
             $preferences->update($validated);

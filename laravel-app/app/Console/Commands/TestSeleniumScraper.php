@@ -38,9 +38,10 @@ class TestSeleniumScraper extends Command
         try {
             // Check if ChromeDriver is available
             $chromeDriverPath = '/opt/node22/bin/chromedriver';
-            if (!file_exists($chromeDriverPath)) {
-                $this->error('ChromeDriver not found at: ' . $chromeDriverPath);
+            if (! file_exists($chromeDriverPath)) {
+                $this->error('ChromeDriver not found at: '.$chromeDriverPath);
                 $this->info('Please install ChromeDriver or update the path in config.');
+
                 return 1;
             }
 
@@ -50,17 +51,18 @@ class TestSeleniumScraper extends Command
             // Start ChromeDriver in background
             $this->info('Starting ChromeDriver server...');
             $process = proc_open(
-                $chromeDriverPath . ' --port=4444',
+                $chromeDriverPath.' --port=4444',
                 [
                     0 => ['pipe', 'r'],
                     1 => ['pipe', 'w'],
-                    2 => ['pipe', 'w']
+                    2 => ['pipe', 'w'],
                 ],
                 $pipes
             );
 
-            if (!$process) {
+            if (! $process) {
                 $this->error('Failed to start ChromeDriver');
+
                 return 1;
             }
 
@@ -72,7 +74,7 @@ class TestSeleniumScraper extends Command
 
             // Create Selenium scraper
             $this->info("Testing URL: {$url}");
-            $scraper = new SeleniumScraper();
+            $scraper = new SeleniumScraper;
 
             // Start browser
             $this->info('Starting Chrome browser...');
@@ -85,8 +87,8 @@ class TestSeleniumScraper extends Command
 
             // Check result
             $htmlLength = strlen($html);
-            $this->info("✓ Page loaded successfully!");
-            $this->info("  HTML size: " . number_format($htmlLength) . " bytes");
+            $this->info('✓ Page loaded successfully!');
+            $this->info('  HTML size: '.number_format($htmlLength).' bytes');
 
             // Show page title
             $title = $scraper->getTitle();
@@ -100,11 +102,11 @@ class TestSeleniumScraper extends Command
 
             // Take screenshot if requested
             if ($screenshotPath = $this->option('screenshot')) {
-                $this->info("Taking screenshot...");
+                $this->info('Taking screenshot...');
                 if ($scraper->takeScreenshot($screenshotPath)) {
                     $this->info("✓ Screenshot saved: {$screenshotPath}");
                 } else {
-                    $this->warn("Failed to save screenshot");
+                    $this->warn('Failed to save screenshot');
                 }
             }
 
@@ -112,7 +114,7 @@ class TestSeleniumScraper extends Command
             $this->newLine();
             $this->info('HTML Preview (first 500 characters):');
             $this->line('─────────────────────────────────────');
-            $this->line(substr($html, 0, 500) . '...');
+            $this->line(substr($html, 0, 500).'...');
             $this->line('─────────────────────────────────────');
 
             // Check for anti-bot indicators
@@ -156,7 +158,7 @@ class TestSeleniumScraper extends Command
             return 0;
 
         } catch (\Exception $e) {
-            $this->error('Test failed: ' . $e->getMessage());
+            $this->error('Test failed: '.$e->getMessage());
             $this->error($e->getTraceAsString());
 
             // Clean up

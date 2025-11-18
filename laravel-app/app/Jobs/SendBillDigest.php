@@ -2,15 +2,15 @@
 
 namespace App\Jobs;
 
-use App\Models\BillSubscription;
 use App\Mail\BillDigest;
+use App\Models\BillSubscription;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class SendBillDigest implements ShouldQueue
 {
@@ -38,8 +38,9 @@ class SendBillDigest implements ShouldQueue
         if ($bills->isEmpty()) {
             Log::info('No bills to send for subscription', [
                 'subscription_id' => $this->subscription->id,
-                'email' => $this->subscription->email
+                'email' => $this->subscription->email,
             ]);
+
             return;
         }
 
@@ -55,13 +56,13 @@ class SendBillDigest implements ShouldQueue
             Log::info('Bill digest sent successfully', [
                 'subscription_id' => $this->subscription->id,
                 'email' => $this->subscription->email,
-                'bills_count' => $bills->count()
+                'bills_count' => $bills->count(),
             ]);
         } catch (\Exception $e) {
             Log::error('Failed to send bill digest', [
                 'subscription_id' => $this->subscription->id,
                 'email' => $this->subscription->email,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             throw $e; // Re-throw to trigger job retry
@@ -76,7 +77,7 @@ class SendBillDigest implements ShouldQueue
         Log::error('Bill digest job failed permanently', [
             'subscription_id' => $this->subscription->id,
             'email' => $this->subscription->email,
-            'error' => $exception->getMessage()
+            'error' => $exception->getMessage(),
         ]);
     }
 }

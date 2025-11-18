@@ -33,7 +33,7 @@ return new class extends Migration
                 'bio',
                 'avatar_url',
                 'notification_preferences',
-                'last_activity_at'
+                'last_activity_at',
             ]);
         });
     }

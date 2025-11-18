@@ -1,19 +1,19 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\BillController;
-use App\Http\Controllers\WatchlistController;
-use App\Http\Controllers\TagController;
-use App\Http\Controllers\NoteController;
-use App\Http\Controllers\SavedSearchController;
-use App\Http\Controllers\LegislatorController;
-use App\Http\Controllers\CommitteeController;
 use App\Http\Controllers\CalendarController;
-use App\Http\Controllers\RiskController;
-use App\Http\Controllers\SubscriptionController;
-use App\Http\Controllers\TeamController;
+use App\Http\Controllers\CommitteeController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DiscussionController;
+use App\Http\Controllers\LegislatorController;
+use App\Http\Controllers\NoteController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\RiskController;
+use App\Http\Controllers\SavedSearchController;
+use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\TagController;
+use App\Http\Controllers\TeamController;
+use App\Http\Controllers\WatchlistController;
 use Illuminate\Support\Facades\Route;
 
 /*

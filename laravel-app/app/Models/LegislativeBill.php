@@ -194,6 +194,7 @@ class LegislativeBill extends Model
     public function hasContentChanged($newData)
     {
         $newHash = hash('sha256', json_encode($newData));
+
         return $this->content_hash !== $newHash;
     }
 

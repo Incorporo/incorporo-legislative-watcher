@@ -27,15 +27,15 @@ class AIAssessmentService
             $response = $this->openRouter->chat([
                 [
                     'role' => 'system',
-                    'content' => 'You are a legislative analysis expert specializing in Romanian Parliament bills. Provide comprehensive, structured analysis in JSON format.'
+                    'content' => 'You are a legislative analysis expert specializing in Romanian Parliament bills. Provide comprehensive, structured analysis in JSON format.',
                 ],
                 [
                     'role' => 'user',
-                    'content' => $prompt
-                ]
+                    'content' => $prompt,
+                ],
             ]);
 
-            if (!$response) {
+            if (! $response) {
                 return null;
             }
 
@@ -43,14 +43,16 @@ class AIAssessmentService
             $analysis = json_decode($response, true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
-                Log::error("Failed to parse AI response for bill {$bill->id}: " . json_last_error_msg());
+                Log::error("Failed to parse AI response for bill {$bill->id}: ".json_last_error_msg());
+
                 return null;
             }
 
             return $analysis;
 
         } catch (\Exception $e) {
-            Log::error("AI Assessment failed for bill {$bill->id}: " . $e->getMessage());
+            Log::error("AI Assessment failed for bill {$bill->id}: ".$e->getMessage());
+
             return null;
         }
     }
@@ -175,6 +177,7 @@ PROMPT;
     {
         // This is extracted from comprehensive assessment, but can be called separately
         $assessment = $this->assessBillComprehensive($bill);
+
         return $assessment['stakeholder_impact'] ?? null;
     }
 
@@ -184,6 +187,7 @@ PROMPT;
     public function analyzeConflicts(LegislativeBill $bill): ?array
     {
         $assessment = $this->assessBillComprehensive($bill);
+
         return $assessment['conflict_analysis'] ?? null;
     }
 
@@ -193,6 +197,7 @@ PROMPT;
     public function predictVotingOutcome(LegislativeBill $bill): ?array
     {
         $assessment = $this->assessBillComprehensive($bill);
+
         return $assessment['voting_predictions'] ?? null;
     }
 
@@ -202,6 +207,7 @@ PROMPT;
     public function generatePolicyRecommendations(LegislativeBill $bill): ?array
     {
         $assessment = $this->assessBillComprehensive($bill);
+
         return $assessment['policy_recommendations'] ?? null;
     }
 
@@ -211,6 +217,7 @@ PROMPT;
     public function generateSummary(LegislativeBill $bill): ?string
     {
         $assessment = $this->assessBillComprehensive($bill);
+
         return $assessment['summary'] ?? null;
     }
 }

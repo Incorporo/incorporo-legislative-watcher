@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use App\Models\LegislativeBill;
 use App\Models\BillAnalysis;
+use App\Models\LegislativeBill;
 use App\Services\AI\OpenRouterService;
 use Exception;
+use Illuminate\Console\Command;
 
 class AssessBillsCommand extends Command
 {
@@ -46,12 +46,13 @@ class AssessBillsCommand extends Command
         $this->newLine();
 
         try {
-            $this->openRouter = new OpenRouterService();
+            $this->openRouter = new OpenRouterService;
         } catch (Exception $e) {
-            $this->error('Failed to initialize OpenRouter service: ' . $e->getMessage());
+            $this->error('Failed to initialize OpenRouter service: '.$e->getMessage());
             $this->newLine();
             $this->warn('Make sure to set OPENROUTER_API_KEY in your .env file');
             $this->warn('Get your API key from: https://openrouter.ai/keys');
+
             return 1;
         }
 
@@ -61,11 +62,11 @@ class AssessBillsCommand extends Command
         if ($billId = $this->option('bill')) {
             // Assess specific bill
             $query->where('id', $billId);
-        } elseif (!$this->option('force')) {
+        } elseif (! $this->option('force')) {
             // Only unanalyzed bills
-            $query->where(function($q) {
+            $query->where(function ($q) {
                 $q->where('analyzed', false)
-                  ->orWhereNull('analyzed');
+                    ->orWhereNull('analyzed');
             });
         }
 
@@ -78,6 +79,7 @@ class AssessBillsCommand extends Command
         if ($bills->isEmpty()) {
             $this->warn('No bills found to assess.');
             $this->info('Try running: php artisan scrape:bills --limit=10 first');
+
             return 0;
         }
 
@@ -98,7 +100,7 @@ class AssessBillsCommand extends Command
         ];
 
         foreach ($bills as $bill) {
-            $bar->setMessage("Assessing Bill #{$bill->id}: " . substr($bill->title, 0, 40) . '...');
+            $bar->setMessage("Assessing Bill #{$bill->id}: ".substr($bill->title, 0, 40).'...');
 
             try {
                 $result = $this->assessBill($bill);
@@ -111,7 +113,7 @@ class AssessBillsCommand extends Command
                 } else {
                     $stats['failed']++;
                     $this->newLine();
-                    $this->error("Failed to assess Bill #{$bill->id}: " . ($result['error'] ?? 'Unknown error'));
+                    $this->error("Failed to assess Bill #{$bill->id}: ".($result['error'] ?? 'Unknown error'));
                 }
 
                 $bar->advance();
@@ -122,7 +124,7 @@ class AssessBillsCommand extends Command
             } catch (Exception $e) {
                 $stats['failed']++;
                 $this->newLine();
-                $this->error("Error assessing Bill #{$bill->id}: " . $e->getMessage());
+                $this->error("Error assessing Bill #{$bill->id}: ".$e->getMessage());
                 $bar->advance();
             }
         }
@@ -148,7 +150,7 @@ class AssessBillsCommand extends Command
             $bill->full_text
         );
 
-        if (!$result['success']) {
+        if (! $result['success']) {
             return $result;
         }
 
@@ -184,27 +186,30 @@ class AssessBillsCommand extends Command
         $this->newLine();
 
         try {
-            $openRouter = new OpenRouterService();
+            $openRouter = new OpenRouterService;
             $result = $openRouter->testConnection();
 
             if ($result['success']) {
-                $this->info('✓ ' . $result['message']);
+                $this->info('✓ '.$result['message']);
                 if (isset($result['models_available'])) {
                     $this->info("✓ {$result['models_available']} models available");
                 }
                 $this->newLine();
                 $this->info('OpenRouter is configured correctly!');
+
                 return 0;
             } else {
-                $this->error('✗ ' . $result['message']);
+                $this->error('✗ '.$result['message']);
+
                 return 1;
             }
 
         } catch (Exception $e) {
-            $this->error('✗ Error: ' . $e->getMessage());
+            $this->error('✗ Error: '.$e->getMessage());
             $this->newLine();
             $this->warn('Make sure to set OPENROUTER_API_KEY in your .env file');
             $this->warn('Get your API key from: https://openrouter.ai/keys');
+
             return 1;
         }
     }
@@ -225,9 +230,9 @@ class AssessBillsCommand extends Command
                 ['Successfully Assessed', $stats['success']],
                 ['Failed', $stats['failed']],
                 ['Total Tokens Used', number_format($stats['total_tokens'])],
-                ['Total Cost', '$' . number_format($stats['total_cost'], 4)],
-                ['Average Time per Bill', round($stats['total_time'] / max($stats['total'], 1)) . 'ms'],
-                ['Total Processing Time', round($stats['total_time'] / 1000, 2) . 's'],
+                ['Total Cost', '$'.number_format($stats['total_cost'], 4)],
+                ['Average Time per Bill', round($stats['total_time'] / max($stats['total'], 1)).'ms'],
+                ['Total Processing Time', round($stats['total_time'] / 1000, 2).'s'],
             ]
         );
 

@@ -12,9 +12,13 @@ use Illuminate\Support\Facades\Log;
 class SeleniumScraper
 {
     protected $driver;
+
     protected $seleniumUrl;
+
     protected $userAgent;
+
     protected $headless;
+
     protected $timeout = 30;
 
     public function __construct()
@@ -31,7 +35,7 @@ class SeleniumScraper
     public function start()
     {
         try {
-            $options = new ChromeOptions();
+            $options = new ChromeOptions;
 
             // Configure Chrome options
             $arguments = [
@@ -40,7 +44,7 @@ class SeleniumScraper
                 '--disable-blink-features=AutomationControlled',
                 '--disable-web-security',
                 '--disable-features=IsolateOrigins,site-per-process',
-                'user-agent=' . $this->userAgent,
+                'user-agent='.$this->userAgent,
             ];
 
             if ($this->headless) {
@@ -75,7 +79,7 @@ class SeleniumScraper
 
             return true;
         } catch (\Exception $e) {
-            Log::error('Failed to start Selenium WebDriver: ' . $e->getMessage());
+            Log::error('Failed to start Selenium WebDriver: '.$e->getMessage());
             throw $e;
         }
     }
@@ -85,7 +89,7 @@ class SeleniumScraper
      */
     public function getPageSource(string $url): string
     {
-        if (!$this->driver) {
+        if (! $this->driver) {
             $this->start();
         }
 
@@ -110,7 +114,7 @@ class SeleniumScraper
 
             return $pageSource;
         } catch (\Exception $e) {
-            Log::error("Selenium: Failed to load {$url}: " . $e->getMessage());
+            Log::error("Selenium: Failed to load {$url}: ".$e->getMessage());
             throw $e;
         }
     }
@@ -118,9 +122,9 @@ class SeleniumScraper
     /**
      * Navigate to URL and wait for specific element
      */
-    public function getPageSourceWithWait(string $url, string $cssSelector, int $wait = null): string
+    public function getPageSourceWithWait(string $url, string $cssSelector, ?int $wait = null): string
     {
-        if (!$this->driver) {
+        if (! $this->driver) {
             $this->start();
         }
 
@@ -144,7 +148,7 @@ class SeleniumScraper
 
             return $pageSource;
         } catch (\Exception $e) {
-            Log::error("Selenium: Failed to load {$url} with selector {$cssSelector}: " . $e->getMessage());
+            Log::error("Selenium: Failed to load {$url} with selector {$cssSelector}: ".$e->getMessage());
             throw $e;
         }
     }
@@ -154,7 +158,7 @@ class SeleniumScraper
      */
     public function executeScript(string $script, array $args = [])
     {
-        if (!$this->driver) {
+        if (! $this->driver) {
             throw new \Exception('WebDriver not started');
         }
 
@@ -166,16 +170,18 @@ class SeleniumScraper
      */
     public function takeScreenshot(string $savePath): bool
     {
-        if (!$this->driver) {
+        if (! $this->driver) {
             return false;
         }
 
         try {
             $this->driver->takeScreenshot($savePath);
             Log::info("Screenshot saved to {$savePath}");
+
             return true;
         } catch (\Exception $e) {
-            Log::error("Failed to take screenshot: " . $e->getMessage());
+            Log::error('Failed to take screenshot: '.$e->getMessage());
+
             return false;
         }
     }
@@ -185,7 +191,7 @@ class SeleniumScraper
      */
     public function getCurrentUrl(): string
     {
-        if (!$this->driver) {
+        if (! $this->driver) {
             return '';
         }
 
@@ -197,7 +203,7 @@ class SeleniumScraper
      */
     public function getTitle(): string
     {
-        if (!$this->driver) {
+        if (! $this->driver) {
             return '';
         }
 
@@ -209,7 +215,7 @@ class SeleniumScraper
      */
     public function findElement(string $cssSelector)
     {
-        if (!$this->driver) {
+        if (! $this->driver) {
             throw new \Exception('WebDriver not started');
         }
 
@@ -221,7 +227,7 @@ class SeleniumScraper
      */
     public function findElements(string $cssSelector)
     {
-        if (!$this->driver) {
+        if (! $this->driver) {
             throw new \Exception('WebDriver not started');
         }
 
@@ -257,7 +263,7 @@ class SeleniumScraper
                 $this->driver->quit();
                 Log::info('Selenium WebDriver closed');
             } catch (\Exception $e) {
-                Log::warning('Error closing WebDriver: ' . $e->getMessage());
+                Log::warning('Error closing WebDriver: '.$e->getMessage());
             }
             $this->driver = null;
         }

@@ -3,9 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\BillTimeline;
-use App\Models\LegislativeBill;
-use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class CalendarController extends Controller
 {
@@ -28,7 +27,7 @@ class CalendarController extends Controller
             ->with('bill')
             ->orderBy('event_date', 'asc')
             ->get()
-            ->groupBy(function($event) {
+            ->groupBy(function ($event) {
                 return $event->event_date->format('Y-m-d');
             });
 
@@ -81,7 +80,7 @@ class CalendarController extends Controller
 
         return response()->json([
             'date' => $date,
-            'events' => $events->map(function($event) {
+            'events' => $events->map(function ($event) {
                 return [
                     'id' => $event->id,
                     'type' => $event->event_type,
@@ -93,7 +92,7 @@ class CalendarController extends Controller
                         'title' => $event->bill->title,
                     ],
                 ];
-            })
+            }),
         ]);
     }
 }

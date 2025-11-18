@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\BillRisk;
-use App\Models\LegislativeBill;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -30,7 +29,7 @@ class RiskController extends Controller
 
         // Sorting
         $query->orderByRaw("FIELD(risk_level, 'critical', 'high', 'medium', 'low')")
-              ->orderBy('flagged_at', 'desc');
+            ->orderBy('flagged_at', 'desc');
 
         $risks = $query->paginate(20)->withQueryString();
 
@@ -84,7 +83,7 @@ class RiskController extends Controller
             'bill.initiators',
             'bill.timeline',
             'bill.documents',
-            'analysis'
+            'analysis',
         ])->findOrFail($id);
 
         return view('risks.show', compact('risk'));

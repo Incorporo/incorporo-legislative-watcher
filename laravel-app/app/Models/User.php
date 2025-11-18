@@ -196,6 +196,7 @@ class User extends Authenticatable
     public function getNotificationPreference(string $type, bool $default = true): bool
     {
         $preferences = $this->notification_preferences ?? [];
+
         return $preferences[$type] ?? $default;
     }
 
