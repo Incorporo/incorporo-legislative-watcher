@@ -40,6 +40,7 @@ Route::get('/', function () {
 
 // Bills (Public - anyone can browse legislation)
 Route::get('/bills', [BillController::class, 'index'])->name('bills.index');
+Route::get('/bills/export/csv', [BillController::class, 'exportCSV'])->name('bills.export.csv');
 Route::get('/bills/{bill}', [BillController::class, 'show'])->name('bills.show');
 Route::get('/bills/{bill}/discussions', [DiscussionController::class, 'index'])->name('discussions.index');
 
