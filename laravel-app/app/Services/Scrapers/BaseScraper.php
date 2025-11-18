@@ -40,7 +40,14 @@ abstract class BaseScraper
         if ($this->proxyEnabled && $proxyConfig = config('scraper.proxy')) {
             // Support multiple proxies separated by comma
             $this->proxies = array_map('trim', explode(',', $proxyConfig));
-            Log::info('Proxy enabled with '.count($this->proxies).' proxy(ies)');
+            Log::info('Proxy enabled with '.count($this->proxies).' proxy(ies)', [
+                'proxies' => $this->proxies,
+                'rotation' => config('scraper.proxy_rotation', true),
+            ]);
+        } elseif ($this->proxyEnabled) {
+            Log::warning('Proxy enabled but no proxy configuration found!');
+        } else {
+            Log::info('Proxy disabled - using direct connection');
         }
     }
 
@@ -100,13 +107,18 @@ abstract class BaseScraper
                         'proxy' => $proxy,
                         'verify' => false, // Disable SSL verification for proxies
                     ]);
-                    Log::debug("Using proxy for {$url}");
+                    Log::debug("Using proxy for {$url}", ['proxy' => $proxy]);
+                } else {
+                    Log::debug("Direct connection to {$url} (no proxy)");
                 }
 
                 $response = $httpClient->$method($url, $options);
 
                 if ($response->successful()) {
-                    Log::debug("Request successful: {$url}");
+                    Log::debug("Request successful: {$url}", [
+                        'status' => $response->status(),
+                        'size' => strlen($response->body()),
+                    ]);
 
                     return $response->body();
                 }
@@ -142,10 +154,21 @@ abstract class BaseScraper
                 $lastException = $e;
                 $attempt++;
 
+                $errorContext = [
+                    'url' => $url,
+                    'attempt' => $attempt,
+                    'max_retries' => $this->maxRetries,
+                    'proxy' => $proxy ?? 'none',
+                    'error' => $e->getMessage(),
+                    'error_class' => get_class($e),
+                ];
+
                 if ($attempt < $this->maxRetries) {
                     $waitTime = pow(2, $attempt); // Exponential backoff
-                    Log::warning("Request failed, retrying in {$waitTime}s... ({$attempt}/{$this->maxRetries}): ".$e->getMessage());
+                    Log::warning("Request failed, retrying in {$waitTime}s...", $errorContext);
                     sleep($waitTime);
+                } else {
+                    Log::error("All retries exhausted", $errorContext);
                 }
             }
         }
