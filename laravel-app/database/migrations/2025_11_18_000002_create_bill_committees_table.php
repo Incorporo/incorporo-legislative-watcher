@@ -48,7 +48,6 @@ return new class extends Migration
             // Indexes for efficient queries
             $table->index(['bill_id', 'assignment_type']);
             $table->index(['committee_name', 'chamber']);
-            $table->index('report_received');
         });
     }
 

@@ -125,6 +125,7 @@ abstract class BaseScraper
 
                 // Handle specific HTTP errors
                 if ($response->status() === 403) {
+                    $lastException = new \Exception("Access forbidden (403) - anti-bot protection detected");
                     Log::warning("Access forbidden (403) on {$url} - anti-bot protection detected");
                     if ($proxy) {
                         Log::info('Trying next proxy...');
@@ -136,6 +137,7 @@ abstract class BaseScraper
                 }
 
                 if ($response->status() === 503) {
+                    $lastException = new \Exception("Service unavailable (503) - rate limited");
                     Log::warning("Rate limited (503) on {$url}, waiting...");
                     sleep(10); // Wait longer on rate limit
                     $attempt++;
@@ -174,8 +176,14 @@ abstract class BaseScraper
         }
 
         // All retries failed
-        Log::error("All retries failed for {$url}: ".$lastException->getMessage());
-        throw $lastException;
+        if ($lastException) {
+            Log::error("All retries failed for {$url}: ".$lastException->getMessage());
+            throw $lastException;
+        } else {
+            $error = "All retries failed for {$url} with no exception captured";
+            Log::error($error);
+            throw new \Exception($error);
+        }
     }
 
     /**
