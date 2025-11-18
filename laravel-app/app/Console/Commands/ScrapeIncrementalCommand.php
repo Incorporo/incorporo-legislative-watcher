@@ -37,9 +37,12 @@ class ScrapeIncrementalCommand extends Command
         $this->info("Running incremental scrape (bills older than {$hours} hours)");
 
         // Create scraping job
+        // Map 'all' to 'both' for database enum constraint
+        $chamberValue = $chamber === 'all' ? 'both' : $chamber;
+
         $job = ScrapingJob::create([
             'job_type' => 'incremental',
-            'chamber' => $chamber,
+            'chamber' => $chamberValue,
             'scope' => "incremental:{$hours}h",
             'trigger' => 'cron',
         ]);

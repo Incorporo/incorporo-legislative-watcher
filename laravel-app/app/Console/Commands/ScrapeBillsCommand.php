@@ -43,9 +43,12 @@ class ScrapeBillsCommand extends Command
         $this->info("Chamber: {$chamber}, Year: ".($year ?: 'all').', Limit: '.($limit ?: 'none'));
 
         // Create scraping job record
+        // Map 'all' to 'both' for database enum constraint
+        $chamberValue = $chamber === 'all' ? 'both' : $chamber;
+
         $job = ScrapingJob::create([
             'job_type' => $full ? 'full_sync' : 'incremental',
-            'chamber' => $chamber,
+            'chamber' => $chamberValue,
             'scope' => $year ? "year:{$year}" : 'all',
             'trigger' => 'manual',
         ]);
