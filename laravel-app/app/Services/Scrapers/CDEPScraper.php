@@ -3,6 +3,7 @@
 namespace App\Services\Scrapers;
 
 use App\Models\BillChange;
+use App\Models\BillCommittee;
 use App\Models\BillDocument;
 use App\Models\BillInitiator;
 use App\Models\BillTimeline;
@@ -268,33 +269,285 @@ class CDEPScraper extends BaseScraper
     }
 
     /**
-     * Extract timeline events
+     * Extract timeline events from CDEP detailed timeline table
+     * This is the comprehensive version that captures all details
      */
     protected function extractTimeline(Crawler $crawler)
     {
-        $timeline = [];
+        $events = [];
+        $sequenceOrder = 1;
+        $currentChamber = null;
+        $currentRound = []; // Track rounds per chamber
 
-        // Look for timeline table
-        $crawler->filter('table.simple tr')->each(function (Crawler $row) use (&$timeline) {
+        // Find the timeline table (look for table with event date/action headers)
+        // The CDEP timeline is in a table after "Derularea procedurii legislative"
+        $timelineTable = $crawler->filter('table[width="100%"][border="0"][cellspacing="0"]')->last();
+
+        if (!$timelineTable->count()) {
+            Log::warning('CDEP: Timeline table not found');
+            return [];
+        }
+
+        $timelineTable->filter('tr')->each(function (Crawler $row) use (&$events, &$sequenceOrder, &$currentChamber, &$currentRound) {
             $cells = $row->filter('td');
 
-            if ($cells->count() >= 2) {
-                $dateText = trim($cells->eq(0)->text());
-                $eventText = trim($cells->eq(1)->text());
+            if ($cells->count() < 2) {
+                return; // Skip spacer/header rows
+            }
 
-                $date = $this->parseDate($dateText);
+            // Detect chamber from background color of first cell
+            $firstCell = $cells->eq(0);
+            $bgColor = $firstCell->attr('bgcolor');
+            $chamber = $this->detectChamberFromColor($bgColor);
 
-                if ($date) {
-                    $timeline[] = [
-                        'event_date' => $date,
-                        'description' => $eventText,
-                        'event_type' => $this->classifyEvent($eventText),
-                    ];
+            if (!$chamber) {
+                return; // Not a valid event row
+            }
+
+            // Update chamber tracking for round counting
+            if ($chamber !== $currentChamber) {
+                $currentChamber = $chamber;
+                if (!isset($currentRound[$chamber])) {
+                    $currentRound[$chamber] = 1;
+                } else {
+                    $currentRound[$chamber]++;
                 }
             }
+
+            // Extract event data
+            $event = [
+                'sequence_order' => $sequenceOrder++,
+                'chamber' => $chamber,
+                'chamber_round' => $currentRound[$chamber],
+            ];
+
+            // Extract date from first cell (if present and not empty)
+            $dateText = trim($firstCell->text());
+            if ($dateText && $dateText !== '&nbsp;' && $dateText !== ' ') {
+                $event['event_date'] = $this->parseDate($dateText);
+            }
+
+            // Extract description - usually in cell index 2 or 3
+            // The structure varies, but description is after the date and arrow cells
+            $descriptionCell = null;
+            for ($i = 0; $i < $cells->count(); $i++) {
+                $cellText = trim($cells->eq($i)->text());
+                // Skip empty cells, date cells, and arrow cells
+                if ($cellText && $cellText !== '&nbsp;' && $cellText !== '→' && !$this->parseDate($cellText)) {
+                    $descriptionCell = $cells->eq($i);
+                    break;
+                }
+            }
+
+            if (!$descriptionCell || !$descriptionCell->count()) {
+                return; // No description found
+            }
+
+            $event['description'] = trim($descriptionCell->text());
+
+            // Classify event type
+            $event['event_type'] = $this->classifyTimelineEvent($event['description']);
+
+            // Check if it's an adoption/vote event
+            if (stripos($event['description'], 'adoptat') !== false) {
+                $event['is_adoption'] = true;
+                $event['vote_result'] = 'adoptat';
+
+                // Extract voting details from obs divs
+                $descriptionCell->filter('div#obs')->each(function (Crawler $obs) use (&$event) {
+                    $obsText = $obs->text();
+                    if (stripos($obsText, 'art.76') !== false || stripos($obsText, 'art.') !== false) {
+                        $event['vote_details'] = [
+                            'constitutional_requirement' => $obsText,
+                        ];
+                    }
+                });
+            } else if (stripos($event['description'], 'respins') !== false) {
+                $event['is_adoption'] = true;
+                $event['vote_result'] = 'respins';
+            }
+
+            // Check if this is the final event (publication)
+            if (stripos($event['description'], 'publicare lege') !== false) {
+                $event['is_final'] = true;
+            }
+
+            // Extract deadlines from obs divs
+            $event['deadlines'] = [];
+            $descriptionCell->filter('div#obs')->each(function (Crawler $obs) use (&$event) {
+                $obsText = $obs->text();
+
+                // Deadline patterns: "termen depunere amendamente: 18.11.2025"
+                if (preg_match('/termen\s+([^:]+):\s*(\d{2}\.\d{2}\.\d{4})/', $obsText, $m)) {
+                    $deadlineType = trim($m[1]);
+                    $deadlineDate = $this->parseDate($m[2]);
+
+                    if ($deadlineDate) {
+                        $event['deadlines'][] = [
+                            'type' => $deadlineType,
+                            'date' => $deadlineDate,
+                        ];
+
+                        // Set primary deadline fields
+                        if (!isset($event['deadline'])) {
+                            $event['deadline'] = $deadlineDate;
+                            $event['deadline_type'] = $deadlineType;
+                        }
+                    }
+                }
+            });
+
+            // Extract documents (PDFs, DOCs)
+            $event['documents'] = [];
+            $descriptionCell->filter('a[href*=".pdf"], a[href*=".doc"]')->each(function (Crawler $doc) use (&$event) {
+                $href = $doc->attr('href');
+                $title = trim($doc->text());
+
+                // Get more context from parent if title is too short
+                if (strlen($title) < 5) {
+                    $parentText = trim($doc->parents()->first()->text());
+                    if (strlen($parentText) > 0 && strlen($parentText) < 200) {
+                        $title = $parentText;
+                    }
+                }
+
+                // Classify document type
+                $docType = $this->classifyDocumentType($title);
+
+                $event['documents'][] = [
+                    'title' => $title,
+                    'url' => $this->buildFullUrl($href),
+                    'type' => $docType,
+                ];
+            });
+
+            // Extract committee links
+            $event['committees'] = [];
+            $descriptionCell->filter('a[href*="structura2015.co"], a[href*="structura.co"]')->each(function (Crawler $committee) use (&$event) {
+                $href = $committee->attr('href');
+                $name = trim($committee->text());
+
+                // Parse committee ID from URL: idc=2&leg=2024&cam=2
+                $queryParams = [];
+                parse_str(parse_url($href, PHP_URL_QUERY) ?? '', $queryParams);
+
+                $event['committees'][] = [
+                    'name' => $name,
+                    'link' => $this->buildFullUrl($href),
+                    'committee_id' => $queryParams['idc'] ?? null,
+                    'legislature' => $queryParams['leg'] ?? null,
+                    'chamber' => $queryParams['cam'] ?? null,
+                ];
+            });
+
+            // Extract stenogram link
+            $stenogramLink = $descriptionCell->filter('a[href*="steno2015.stenograma"], a[href*="steno.stenograma"]')->first();
+            if ($stenogramLink->count()) {
+                $event['stenogram_link'] = $this->buildFullUrl($stenogramLink->attr('href'));
+            }
+
+            // Extract video link (from onclick JavaScript)
+            $videoLink = $descriptionCell->filter('a[onclick*="loadintoIframe"]')->first();
+            if ($videoLink->count()) {
+                $onclick = $videoLink->attr('onclick');
+                // Parse: loadintoIframe(1, '/pls/steno/htp_jwplayer?stream=...')
+                if (preg_match('/loadintoIframe\(\d+,\s*[\'"]([^\'\"]+)[\'"]/', $onclick, $m)) {
+                    $event['video_link'] = $this->buildFullUrl($m[1]);
+                }
+            }
+
+            $events[] = $event;
         });
 
-        return $timeline;
+        Log::info("CDEP: Extracted {$sequenceOrder} timeline events");
+
+        return $events;
+    }
+
+    /**
+     * Detect chamber from background color
+     */
+    protected function detectChamberFromColor($bgColor)
+    {
+        if (!$bgColor) {
+            return null;
+        }
+
+        // Normalize color (remove # if present)
+        $color = strtolower(str_replace('#', '', $bgColor));
+
+        // Chamber color mapping from CDEP HTML
+        $chamberColors = [
+            'dfefff' => 'senate',      // Light blue - Senate
+            'fff0d8' => 'cdep',        // Light orange/beige - Chamber of Deputies
+            'ffffe8' => 'presidential', // Light yellow - Presidential/Parliament
+        ];
+
+        return $chamberColors[$color] ?? null;
+    }
+
+    /**
+     * Classify timeline event type from description
+     */
+    protected function classifyTimelineEvent($description)
+    {
+        $description = mb_strtolower($description);
+
+        $patterns = [
+            'registered' => ['înregistrat', 'prezentare în biroul permanent'],
+            'committee_sent' => ['trimis pentru raport', 'trimis pentru aviz'],
+            'committee_report' => ['primire raport', 'primire aviz'],
+            'agenda' => ['înscris pe ordinea de zi'],
+            'debate' => ['dezbatere în plen'],
+            'vote' => ['adoptat', 'respins'],
+            'reexamination_request' => ['solicita reexaminarea', 'cerere de reexaminare'],
+            'reexamination_vote' => ['ca urmare a cererii de reexaminare'],
+            'sent_to_president' => ['trimitere la presedintele româniei'],
+            'president_review' => ['depunere la secretarul general'],
+            'promulgated' => ['promulgata prin decret'],
+            'becomes_law' => ['devine legea'],
+            'published' => ['publicare lege în monitorul oficial'],
+        ];
+
+        foreach ($patterns as $type => $keywords) {
+            foreach ($keywords as $keyword) {
+                if (stripos($description, $keyword) !== false) {
+                    return $type;
+                }
+            }
+        }
+
+        return 'other';
+    }
+
+    /**
+     * Classify document type from title
+     */
+    protected function classifyDocumentType($title)
+    {
+        $title = mb_strtolower($title);
+
+        if (stripos($title, 'expunere de motive') !== false || stripos($title, 'expunerea de motive') !== false) {
+            return 'explanatory_memorandum';
+        } elseif (stripos($title, 'formă inițiator') !== false || stripos($title, 'forma initiator') !== false) {
+            return 'bill_text';
+        } elseif (stripos($title, 'forma adoptată') !== false || stripos($title, 'forma adoptata') !== false) {
+            return 'adopted_form';
+        } elseif (stripos($title, 'raport') !== false) {
+            return 'committee_report';
+        } elseif (stripos($title, 'aviz') !== false) {
+            return 'opinion';
+        } elseif (stripos($title, 'amendament') !== false) {
+            return 'amendment';
+        } elseif (stripos($title, 'stenogram') !== false) {
+            return 'stenogram';
+        } elseif (stripos($title, 'memorandum') !== false) {
+            return 'memorandum';
+        } elseif (stripos($title, 'adresa') !== false) {
+            return 'official_letter';
+        }
+
+        return 'other';
     }
 
     /**
@@ -431,25 +684,131 @@ class CDEPScraper extends BaseScraper
     }
 
     /**
-     * Save timeline events for a bill
+     * Save timeline events for a bill (comprehensive version)
      */
     protected function saveTimeline(LegislativeBill $bill, array $timeline)
     {
-        foreach ($timeline as $event) {
-            // Check if event already exists
+        foreach ($timeline as $eventData) {
+            // Check if event already exists by sequence_order or date+description
             $existing = BillTimeline::where('bill_id', $bill->id)
-                ->where('event_date', $event['event_date'])
-                ->where('description', $event['description'])
+                ->where(function ($query) use ($eventData) {
+                    $query->where('sequence_order', $eventData['sequence_order'] ?? null)
+                        ->orWhere(function ($q) use ($eventData) {
+                            $q->where('event_date', $eventData['event_date'] ?? null)
+                                ->where('description', $eventData['description'] ?? '');
+                        });
+                })
                 ->first();
 
-            if (! $existing) {
-                BillTimeline::create([
-                    'bill_id' => $bill->id,
-                    'event_date' => $event['event_date'],
-                    'event_type' => $event['event_type'],
-                    'description' => $event['description'],
-                    'chamber' => $this->chamber,
+            if ($existing) {
+                // Update existing event with new data
+                $timelineEvent = $existing;
+                $timelineEvent->update([
+                    'sequence_order' => $eventData['sequence_order'] ?? null,
+                    'event_type' => $eventData['event_type'],
+                    'chamber_round' => $eventData['chamber_round'] ?? 1,
+                    'is_adoption' => $eventData['is_adoption'] ?? false,
+                    'is_final' => $eventData['is_final'] ?? false,
+                    'vote_result' => $eventData['vote_result'] ?? null,
+                    'vote_details' => $eventData['vote_details'] ?? null,
+                    'deadline' => $eventData['deadline'] ?? null,
+                    'deadline_type' => $eventData['deadline_type'] ?? null,
+                    'stenogram_link' => $eventData['stenogram_link'] ?? null,
+                    'video_link' => $eventData['video_link'] ?? null,
+                    'committees' => $eventData['committees'] ?? [],
+                    'documents' => $eventData['documents'] ?? [],
                 ]);
+            } else {
+                // Create new timeline event
+                $timelineEvent = BillTimeline::create([
+                    'bill_id' => $bill->id,
+                    'sequence_order' => $eventData['sequence_order'] ?? null,
+                    'event_date' => $eventData['event_date'] ?? null,
+                    'event_type' => $eventData['event_type'],
+                    'description' => $eventData['description'] ?? '',
+                    'chamber' => $eventData['chamber'] ?? $this->chamber,
+                    'chamber_round' => $eventData['chamber_round'] ?? 1,
+                    'is_adoption' => $eventData['is_adoption'] ?? false,
+                    'is_final' => $eventData['is_final'] ?? false,
+                    'vote_result' => $eventData['vote_result'] ?? null,
+                    'vote_details' => $eventData['vote_details'] ?? null,
+                    'deadline' => $eventData['deadline'] ?? null,
+                    'deadline_type' => $eventData['deadline_type'] ?? null,
+                    'stenogram_link' => $eventData['stenogram_link'] ?? null,
+                    'video_link' => $eventData['video_link'] ?? null,
+                    'committees' => $eventData['committees'] ?? [],
+                    'documents' => $eventData['documents'] ?? [],
+                ]);
+            }
+
+            // Save committee assignments if present
+            if (!empty($eventData['committees'])) {
+                foreach ($eventData['committees'] as $committeeData) {
+                    // Determine assignment type from event type
+                    $assignmentType = 'aviz'; // default
+                    if (stripos($eventData['description'], 'raport') !== false) {
+                        $assignmentType = 'raport';
+                    }
+
+                    // Check if committee assignment already exists
+                    $existingCommittee = BillCommittee::where('bill_id', $bill->id)
+                        ->where('timeline_event_id', $timelineEvent->id)
+                        ->where('committee_name', $committeeData['name'])
+                        ->first();
+
+                    if (!$existingCommittee) {
+                        BillCommittee::create([
+                            'bill_id' => $bill->id,
+                            'timeline_event_id' => $timelineEvent->id,
+                            'committee_name' => $committeeData['name'],
+                            'committee_id' => $committeeData['committee_id'] ?? null,
+                            'committee_link' => $committeeData['link'] ?? null,
+                            'chamber' => $committeeData['chamber'] ?? $this->chamber,
+                            'legislature' => $committeeData['legislature'] ?? null,
+                            'assignment_type' => $assignmentType,
+                        ]);
+                    }
+                }
+            }
+
+            // Save timeline documents if present
+            if (!empty($eventData['documents'])) {
+                foreach ($eventData['documents'] as $docData) {
+                    // Check if document already exists by URL
+                    $existingDoc = BillDocument::where('bill_id', $bill->id)
+                        ->where('url', $docData['url'])
+                        ->first();
+
+                    if (!$existingDoc) {
+                        BillDocument::create([
+                            'bill_id' => $bill->id,
+                            'timeline_event_id' => $timelineEvent->id,
+                            'document_type' => $docData['type'] ?? 'other',
+                            'title' => $docData['title'],
+                            'url' => $docData['url'],
+                            'mime_type' => $this->getMimeTypeFromUrl($docData['url']),
+                        ]);
+                    } else {
+                        // Link existing document to this timeline event if not already linked
+                        if (!$existingDoc->timeline_event_id) {
+                            $existingDoc->update(['timeline_event_id' => $timelineEvent->id]);
+                        }
+                    }
+                }
+            }
+
+            // Extract and save deadlines from eventData to committee assignments
+            if (!empty($eventData['deadlines'])) {
+                foreach ($eventData['deadlines'] as $deadline) {
+                    // Update committee deadlines if this is a committee event
+                    if (stripos($eventData['description'], 'trimis pentru') !== false) {
+                        BillCommittee::where('bill_id', $bill->id)
+                            ->where('timeline_event_id', $timelineEvent->id)
+                            ->update([
+                                stripos($deadline['type'], 'amendamente') !== false ? 'deadline_amendments' : 'deadline_report' => $deadline['date'],
+                            ]);
+                    }
+                }
             }
         }
     }

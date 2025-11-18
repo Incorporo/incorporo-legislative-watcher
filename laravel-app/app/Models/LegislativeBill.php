@@ -134,6 +134,14 @@ class LegislativeBill extends Model
     }
 
     /**
+     * Get bill committees from timeline scraping (CDEP/Senate)
+     */
+    public function billCommittees()
+    {
+        return $this->hasMany(BillCommittee::class, 'bill_id');
+    }
+
+    /**
      * Scope to filter by chamber
      */
     public function scopeChamber($query, $chamber)
