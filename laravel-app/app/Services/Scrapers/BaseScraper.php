@@ -2,6 +2,7 @@
 
 namespace App\Services\Scrapers;
 
+use App\Models\ScrapingJob;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -407,5 +408,5 @@ abstract class BaseScraper
 
     abstract public function scrapeBillDetail($id, $chamber);
 
-    abstract public function saveBill($data, $job = null);
+    abstract public function saveBill($data, ?ScrapingJob $job = null);
 }
