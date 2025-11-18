@@ -109,6 +109,10 @@ abstract class BaseScraper
                     ]);
                     Log::debug("Using proxy for {$url}", ['proxy' => $proxy]);
                 } else {
+                    // Direct connection with SSL verification disabled
+                    $httpClient = $httpClient->withOptions([
+                        'verify' => false,
+                    ]);
                     Log::debug("Direct connection to {$url} (no proxy)");
                 }
 
