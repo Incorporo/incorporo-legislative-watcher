@@ -24,7 +24,8 @@ class SenateScraper extends BaseScraper
      */
     public function scrapeBillList($chamber = null, $year = null, $limit = null)
     {
-        $url = "{$this->baseUrl}/legiproiect.aspx";
+        // Note: ASP.NET URLs are case-sensitive - use exact casing
+        $url = "{$this->baseUrl}/LegiProiect.aspx";
 
         Log::info("Senate: Scraping bill list from {$url}");
 

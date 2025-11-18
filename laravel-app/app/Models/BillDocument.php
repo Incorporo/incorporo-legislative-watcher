@@ -11,6 +11,7 @@ class BillDocument extends Model
 
     protected $fillable = [
         'bill_id',
+        'timeline_event_id',
         'document_type',
         'title',
         'description',
@@ -43,6 +44,11 @@ class BillDocument extends Model
     public function bill()
     {
         return $this->belongsTo(LegislativeBill::class, 'bill_id');
+    }
+
+    public function timelineEvent()
+    {
+        return $this->belongsTo(BillTimeline::class, 'timeline_event_id');
     }
 
     public function scopeDownloaded($query)
